@@ -80,7 +80,7 @@
         "abs_length": "pen_absorption.json",
         "emissium": "pen_emissium.json",
         "time_constant": 25.0,
-        "efficiency": 0.6,
+        "efficiency": 0.7,
         "hole_size_percentage": 0.5,
         "rayleigh_scattering": 150
     },

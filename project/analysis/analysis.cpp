@@ -173,16 +173,28 @@ void analysis(std::string filename="../build/Data.root")
     TH1D *h1dRin = new TH1D("hist_R_in","R (inner);R value;Entries", 200, -0.1 , 1.1 );
     TH1D *h1dRout = new TH1D("hist_R_out","R (outer);R value;Entries", 200, -0.1 , 1.1 );
 
+    double out_cont =0.0;
+    double out_cont_cut=0.0;
+    double out_cut=0.2;
+
     for(int i=0; i<nx; i++)        
     {
-    for(int j=0; j<ny; j++)
-    {
-        if(i!=0 && i!=(nx-1))
-            h1dRin->Fill(buffer[i][j]);
-        else
-            h1dRout->Fill(buffer[i][j]);
+        for(int j=0; j<ny; j++)
+        {
+            if(i!=0 && i!=(nx-1))
+                h1dRin->Fill(buffer[i][j]);
+            else
+            {
+                h1dRout->Fill(buffer[i][j]);
+                if(buffer[i][j]>=out_cut)
+                {
+                    out_cont_cut=out_cont_cut+1;
+                }
+                out_cont=out_cont+1;
+            }       
+        }
     }
-    }
+
 
     TCanvas *c7 = new TCanvas("c7","R distributions",800,600);
     c7->SetGrid();
@@ -208,6 +220,7 @@ void analysis(std::string filename="../build/Data.root")
 
     c7->SaveAs("histRATIO.png");
 
+    std::cout << "efficiency: " << out_cont_cut/out_cont <<std::endl;
 
 }
 
