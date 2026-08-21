@@ -28,6 +28,8 @@
 #include "G4NistManager.hh"
 #include <math.h>
 
+//#include "G4GDMLParser.hh"
+
 //nota de coordadenas (x,y,z) --> (direcao da tela, direcao do campo, direcao transversal da tela)
 
 // Option to switch on/off checking of volumes overlaps
@@ -157,7 +159,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double cryostatThickness = config_cryostat["thickness"].get<double>()*cm;
 
     G4cout << "Cryostat Internal size: " << cryostat_sizeX/m << " m  X " << cryostat_sizeY/m << " m  X " << cryostat_sizeZ/m << " m " << std::endl;
-    G4cout << "Cryostat Thickness: " << cryostatThickness/m << " m " << std::endl;
+    G4cout << "Cryostat ThicknesG4LogicalVolumes: " << cryostatThickness/m << " m " << std::endl;
     G4cout << "Cryostat Refraction Index: " << config_cryostat["refraction_index"].get<double>() << std::endl;
     G4cout << "Cryostat Absorption Length: " << config_cryostat["abs_length"].get<double>()*cm/m << "m" << std::endl;
 
@@ -1135,6 +1137,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4VisAttributes* visSiPMuv = new G4VisAttributes(G4Colour(0.6, 0, 0.6)); 
     visSiPMuv->SetForceSolid(true); 
     sipmuv_logical->SetVisAttributes(visSiPMuv);
+
+
+    //G4GDMLParser parser;
+    //parser.Write("geometria.gdml", physicalWorld);
+
 
     return physicalWorld;
   
