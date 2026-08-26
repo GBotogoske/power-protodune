@@ -334,21 +334,30 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     mpt_FC->AddProperty("ABSLENGTH", {0.1*eV,15*eV}, {config_FC["abs_length"].get<double>()*cm,config_FC["abs_length"].get<double>()*cm}, 2);
     FC_mat->SetMaterialPropertiesTable(mpt_FC);
 
-    G4double d_cryo = config_FC["distance_to_wall"].get<double>()*cm; // distance from the membrane
+    G4double d_cryoX =
+    config_FC["distance_to_wall_x"].get<double>()*cm;
+
+    G4double d_cryoZ =
+        config_FC["distance_to_wall_z"].get<double>()*cm;
     //Starting with the vertical bars
     G4double FCv_sizeX = config_FC["vertical_bar"][0].get<double>()*cm;
     G4double FCv_sizeY = config_FC["vertical_bar"][1].get<double>()*cm;
     G4double FCv_sizeZ = config_FC["vertical_bar"][2].get<double>()*cm;
     G4double FCv_distance = config_FC["vertical_bar_distance"].get<double>()*cm;
 
-    G4cout << "FC Distance from Membrane: " << d_cryo/m << "m" << std::endl;
+    G4cout << "FC Distance from Membrane X: "
+       << d_cryoX/m << " m" << std::endl;
+
+    G4cout << "FC Distance from Membrane Z: "
+       << d_cryoZ/m << " m" << std::endl;   
     G4cout << "FC Vertical bar dimensions: " << FCv_sizeX/m << " m X " <<  FCv_sizeY/m << " m X " << FCv_sizeZ/m << " m" << std::endl;
     G4cout << "FC Vertical bar distance: " << FCv_distance/m << "m" << std::endl;
 
     G4Box* solidBARv = new G4Box("vertical_bar",0.5*FCv_sizeX, 0.5*FCv_sizeY, 0.5*FCv_sizeZ);
     G4Box* solidBARv2 = new G4Box("vertical_bar2",0.5*FCv_sizeZ, 0.5*FCv_sizeY, 0.5*FCv_sizeX);
   
-    int n_barv_long = (cryostat_sizeX-2*d_cryo)/FCv_distance;
+    int n_barv_long =
+    (cryostat_sizeX-2*d_cryoX)/FCv_distance;
     G4UnionSolid* FCv_united =  new G4UnionSolid("FCv_longwall_template", solidBARv, solidBARv, 0, G4ThreeVector(FCv_distance,0,0));
     for(int i=1;i<n_barv_long/2;i++)
     {
@@ -356,7 +365,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         FCv_united = new G4UnionSolid("FCv_longwall_template", FCv_united, solidBARv, 0, G4ThreeVector((-i)*FCv_distance,0,0));     
     } 
 
-    int n_barv_end = (cryostat_sizeZ-2*d_cryo)/FCv_distance;
+    int n_barv_end =
+    (cryostat_sizeZ-2*d_cryoZ)/FCv_distance;
     G4UnionSolid* FCv_united_end =  new G4UnionSolid("FCv_endwall_template", solidBARv2, solidBARv2, 0, G4ThreeVector(0,0,FCv_distance));
     for(int i=1;i<n_barv_end/2;i++)
     {
@@ -379,8 +389,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4cout << "FC Horizontal Bar 2 elipse minor axis: " << barH_eixoY2/m  << " m" << std::endl;
     G4cout << "FC Horizontal Bar 2 length/cut: " << cut_value2/m  << " m" << std::endl;
 
-    double barH_length = cryostat_sizeX-2*d_cryo-FCv_sizeX;
-    double barH_length_end = cryostat_sizeZ-2*d_cryo-FCv_sizeZ-2*cut_value1;
+    double barH_length =
+        cryostat_sizeX-2*d_cryoX-FCv_sizeX;
+
+    double barH_length_end =
+        cryostat_sizeZ-2*d_cryoZ-FCv_sizeZ-2*cut_value1;
 
     std::vector<G4TwoVector> ellipse1;
     double lastY=1e30; // inicializa com valor impossível
@@ -472,27 +485,138 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     LogicalFCh_wall->SetVisAttributes(visFC);
     LogicalFCh_end->SetVisAttributes(visFC);
 
-    G4VPhysicalVolume* physicalFC1_v = new G4PVPlacement(0,G4ThreeVector(-FCv_distance/2,0,cryostat_sizeZ/2-d_cryo),
-        LogicalFCv_wall,"FCv_long_wall",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalFC2_v = new G4PVPlacement(0,G4ThreeVector(-FCv_distance/2,0,-cryostat_sizeZ/2+d_cryo),
-        LogicalFCv_wall,"FCv_long_wall",logicWorld,true,2,checkOverlaps);
-    G4VPhysicalVolume* physicalFC3_v = new G4PVPlacement(0,G4ThreeVector(cryostat_sizeX/2-d_cryo,0,-FCv_distance/2),
-        LogicalFCv_end,"FCv_end_wall",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalFC4_v = new G4PVPlacement(0,G4ThreeVector(-cryostat_sizeX/2+d_cryo,0,-FCv_distance/2),
-        LogicalFCv_end,"FCv_end_wall",logicWorld,true,2,checkOverlaps);
+    G4VPhysicalVolume* physicalFC1_v = new G4PVPlacement(
+    0,
+    G4ThreeVector(
+        -FCv_distance/2,
+        0,
+        cryostat_sizeZ/2 - d_cryoZ
+    ),
+    LogicalFCv_wall,
+    "FCv_long_wall",
+    logicWorld,
+    true,
+    1,
+    checkOverlaps
+    );
 
-    G4VPhysicalVolume* physicalFC1_h = new G4PVPlacement( rotFinal1 
-        ,G4ThreeVector(0,-FCh_distance/2, cryostat_sizeZ/2-d_cryo-FCv_sizeZ/2-(cut_value1-barH_eixoY1/2)),
-        LogicalFCh_wall,"FCh_long_wall",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalFC2_h = new G4PVPlacement( rotFinal2 
-        ,G4ThreeVector(0,+FCh_distance/2, -(cryostat_sizeZ/2-d_cryo-FCv_sizeZ/2-(cut_value1-barH_eixoY1/2))),
-        LogicalFCh_wall,"FCh_long_wall",logicWorld,true,2,checkOverlaps);
-    G4VPhysicalVolume* physicalFC3_h = new G4PVPlacement( rotTopZ 
-        ,G4ThreeVector(-(cryostat_sizeX/2-d_cryo-FCv_sizeX/2-(cut_value1-barH_eixoY1/2)),+FCh_distance/2, 0),
-        LogicalFCh_end,"FCh_end_wall",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalFC4_h = new G4PVPlacement( minus_rotTopZ 
-        ,G4ThreeVector((cryostat_sizeX/2-d_cryo-FCv_sizeX/2-(cut_value1-barH_eixoY1/2)),-FCh_distance/2, 0),
-        LogicalFCh_end,"FCh_end_wall",logicWorld,true,2,checkOverlaps);            
+    G4VPhysicalVolume* physicalFC2_v = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            -FCv_distance/2,
+            0,
+            -cryostat_sizeZ/2 + d_cryoZ
+        ),
+        LogicalFCv_wall,
+        "FCv_long_wall",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalFC3_v = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            cryostat_sizeX/2 - d_cryoX,
+            0,
+            -FCv_distance/2
+        ),
+        LogicalFCv_end,
+        "FCv_end_wall",
+        logicWorld,
+        true,
+        1,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalFC4_v = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            -cryostat_sizeX/2 + d_cryoX,
+            0,
+            -FCv_distance/2
+        ),
+        LogicalFCv_end,
+        "FCv_end_wall",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+
+
+    G4VPhysicalVolume* physicalFC1_h = new G4PVPlacement(
+        rotFinal1,
+        G4ThreeVector(
+            0,
+            -FCh_distance/2,
+            cryostat_sizeZ/2
+            - d_cryoZ
+            - FCv_sizeZ/2
+            - (cut_value1 - barH_eixoY1/2)
+        ),
+        LogicalFCh_wall,
+        "FCh_long_wall",
+        logicWorld,
+        true,
+        1,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalFC2_h = new G4PVPlacement(
+        rotFinal2,
+        G4ThreeVector(
+            0,
+            +FCh_distance/2,
+            -(cryostat_sizeZ/2
+            - d_cryoZ
+            - FCv_sizeZ/2
+            - (cut_value1 - barH_eixoY1/2))
+        ),
+        LogicalFCh_wall,
+        "FCh_long_wall",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalFC3_h = new G4PVPlacement(
+        rotTopZ,
+        G4ThreeVector(
+            -(cryostat_sizeX/2
+            - d_cryoX
+            - FCv_sizeX/2
+            - (cut_value1 - barH_eixoY1/2)),
+            +FCh_distance/2,
+            0
+        ),
+        LogicalFCh_end,
+        "FCh_end_wall",
+        logicWorld,
+        true,
+        1,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalFC4_h = new G4PVPlacement(
+        minus_rotTopZ,
+        G4ThreeVector(
+            cryostat_sizeX/2
+            - d_cryoX
+            - FCv_sizeX/2
+            - (cut_value1 - barH_eixoY1/2),
+            -FCh_distance/2,
+            0
+        ),
+        LogicalFCh_end,
+        "FCh_end_wall",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );         
 
     // -----  Liquid Argon && FC Interface Boundary --------
 
@@ -560,9 +684,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
    
     Acry_mat->SetMaterialPropertiesTable(mpt_Acry);
 
-    double acrylic_X = cryostat_sizeX-2*d_cryo-FCv_sizeX-2*cut_value1;
-    double acrylic_Y = FCv_sizeY;
-    double acrylic_Z = cryostat_sizeZ-2*d_cryo-FCv_sizeZ-2*cut_value1;
+    double acrylic_X =
+    cryostat_sizeX - 2*d_cryoX - FCv_sizeX - 2*cut_value1;
+
+    double acrylic_Y =
+        FCv_sizeY;
+
+    double acrylic_Z =
+        cryostat_sizeZ - 2*d_cryoZ - FCv_sizeZ - 2*cut_value1;
     double acry_thickness = config_Acrylic["thickness"].get<double>()*cm;
     G4cout << "Acrylic Thickness: " << acry_thickness/m << " m" << std::endl;
     auto acrylic_wall_long = new G4Box("Acrylic_long", 0.5*acrylic_X, 0.5*acrylic_Y, 0.5*acry_thickness);
@@ -570,15 +699,82 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     auto logical_Acrylic_wall_long = new G4LogicalVolume(acrylic_wall_long, Acry_mat , "Acrylic_long");
     auto logical_Acrylic_wall_end = new G4LogicalVolume(acrylic_wall_end, Acry_mat , "Acrylic_end");
 
-    G4VPhysicalVolume* physicalAcrylical1 = new G4PVPlacement(0, G4ThreeVector(0,0,cryostat_sizeZ/2-d_cryo-0.5*FCv_sizeZ-cut_value1-0.5*acry_thickness), 
-        logical_Acrylic_wall_long, "Acrylical_long", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalAcrylical2 = new G4PVPlacement(0, G4ThreeVector(0,0,-(cryostat_sizeZ/2-d_cryo-0.5*FCv_sizeZ-cut_value1-0.5*acry_thickness)), 
-        logical_Acrylic_wall_long, "Acrylical_long", logicWorld, true, 2, checkOverlaps);
-    G4VPhysicalVolume* physicalAcrylical3 = new G4PVPlacement(0, G4ThreeVector(cryostat_sizeX/2-d_cryo-0.5*FCv_sizeX-cut_value1-0.5*acry_thickness,0,0), 
-        logical_Acrylic_wall_end, "Acrylical_end", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalAcrylical4 = new G4PVPlacement(0, G4ThreeVector(-(cryostat_sizeX/2-d_cryo-0.5*FCv_sizeX-cut_value1-0.5*acry_thickness),0,0), 
-        logical_Acrylic_wall_end, "Acrylical_end", logicWorld, true, 2, checkOverlaps);
-    
+    G4VPhysicalVolume* physicalAcrylical1 = new G4PVPlacement(
+    0,
+    G4ThreeVector(
+        0,
+        0,
+        cryostat_sizeZ/2
+        - d_cryoZ
+        - 0.5*FCv_sizeZ
+        - cut_value1
+        - 0.5*acry_thickness
+    ),
+    logical_Acrylic_wall_long,
+    "Acrylical_long",
+    logicWorld,
+    true,
+    1,
+    checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalAcrylical2 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            0,
+            0,
+            -(cryostat_sizeZ/2
+            - d_cryoZ
+            - 0.5*FCv_sizeZ
+            - cut_value1
+            - 0.5*acry_thickness)
+        ),
+        logical_Acrylic_wall_long,
+        "Acrylical_long",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalAcrylical3 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - 0.5*acry_thickness,
+            0,
+            0
+        ),
+        logical_Acrylic_wall_end,
+        "Acrylical_end",
+        logicWorld,
+        true,
+        1,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalAcrylical4 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            -(cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - 0.5*acry_thickness),
+            0,
+            0
+        ),
+        logical_Acrylic_wall_end,
+        "Acrylical_end",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+        
     G4VisAttributes* visAcry = new G4VisAttributes(G4Colour(0.8, 0.1, 0.1)); 
     visAcry->SetForceSolid(true); 
     logical_Acrylic_wall_long->SetVisAttributes(visAcry);
@@ -711,14 +907,85 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     auto logical_pen_wall_long = new G4LogicalVolume(pen_wall_long, PEN_mat , "PEN_long");
     auto logical_pen_wall_end = new G4LogicalVolume(pen_wall_end, PEN_mat , "PEN_end");
 
-    G4VPhysicalVolume* physicalPEN1 = new G4PVPlacement(0, G4ThreeVector(0,0,cryostat_sizeZ/2-d_cryo-0.5*FCv_sizeZ-cut_value1-acry_thickness-0.5*pen_thickness), 
-        logical_pen_wall_long, "PEN_long", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalPEN2 = new G4PVPlacement(0, G4ThreeVector(0,0,-(cryostat_sizeZ/2-d_cryo-0.5*FCv_sizeZ-cut_value1-acry_thickness-0.5*pen_thickness)), 
-        logical_pen_wall_long, "PEN_long", logicWorld, true, 2, checkOverlaps);
-    G4VPhysicalVolume* physicalPEN3 = new G4PVPlacement(0, G4ThreeVector(cryostat_sizeX/2-d_cryo-0.5*FCv_sizeX-cut_value1-acry_thickness-0.5*pen_thickness,0,0), 
-        logical_pen_wall_end, "PEN_end", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalPEN4 = new G4PVPlacement(0, G4ThreeVector(-(cryostat_sizeX/2-d_cryo-0.5*FCv_sizeX-cut_value1-acry_thickness-0.5*pen_thickness),0,0), 
-        logical_pen_wall_end, "PEN_end", logicWorld, true, 2, checkOverlaps);
+    G4VPhysicalVolume* physicalPEN1 = new G4PVPlacement(
+    0,
+    G4ThreeVector(
+        0,
+        0,
+        cryostat_sizeZ/2
+        - d_cryoZ
+        - 0.5*FCv_sizeZ
+        - cut_value1
+        - acry_thickness
+        - 0.5*pen_thickness
+    ),
+    logical_pen_wall_long,
+    "PEN_long",
+    logicWorld,
+    true,
+    1,
+    checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalPEN2 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            0,
+            0,
+            -(cryostat_sizeZ/2
+            - d_cryoZ
+            - 0.5*FCv_sizeZ
+            - cut_value1
+            - acry_thickness
+            - 0.5*pen_thickness)
+        ),
+        logical_pen_wall_long,
+        "PEN_long",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalPEN3 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - acry_thickness
+            - 0.5*pen_thickness,
+            0,
+            0
+        ),
+        logical_pen_wall_end,
+        "PEN_end",
+        logicWorld,
+        true,
+        1,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalPEN4 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            -(cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - acry_thickness
+            - 0.5*pen_thickness),
+            0,
+            0
+        ),
+        logical_pen_wall_end,
+        "PEN_end",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
     
     G4VisAttributes* visPEN = new G4VisAttributes(G4Colour(1, 1, 0.1)); 
     visPEN->SetForceSolid(true); 
@@ -982,6 +1249,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double dv_SiPM = config_SiPM["distance_vertical"].get<double>()*cm;
     G4double dh_SiPM = config_SiPM["distance_horizontal"].get<double>()*cm;
     G4double SiPM_reflective = config_SiPM["reflectance"].get<double>();
+
+    G4int only_half = config_SiPM["only_half"].get<int>();
+
     std::vector<std::vector<std::string>> matrix_pos = config_SiPM["map_ldu"].get<std::vector<std::vector<std::string>>>(); //[i][j] = [linha][coluna]
     G4cout << "SiPM Refraction Index: " << rindex_SiPM << std::endl;
     G4cout << "SiPM Absorption Length: " << abslength_SiPM/m << " m" << std::endl;
@@ -1061,6 +1331,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         {
             double x_pos = (ix - (n_ldu_x)/2.0 + 0.5)*(dh_SiPM);
             double y_pos = (iy - (n_ldu_y)/2.0 + 0.5)*(dv_SiPM);
+        
+            // Se only_half=true, coloca SiPM apenas no volume inferior (y < 0)
+            if (only_half==1 && y_pos >= 0)
+                continue;
+
             
             for (int side = -1; side <= 1; side += 2)
             {
@@ -1099,6 +1374,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         {
             double z_pos = (iz - (n_ldu_z)/2.0 + 0.5)*(dh_SiPM);
             double y_pos = (iy - (n_ldu_y)/2.0 + 0.5)*(dv_SiPM);
+
+            // Se only_half=true, coloca SiPM apenas no volume inferior (y < 0)
+            if (only_half==1 && y_pos >= 0)
+                continue;
+
             
             for (int side = -1; side <= 1; side += 2)
             {

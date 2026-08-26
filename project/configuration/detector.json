@@ -1,11 +1,11 @@
 {
     "world": 
     {
-        "size": [6500.0, 1800, 1800]
+        "size": [1200.0, 1150.0, 1200.0]
     },
     "cryostat": 
     {
-        "size": [6000.0, 1300.0, 1300.0],
+        "size": [854.4, 789.6, 854.4],
         "thickness": 0.8,
         "material": "G4_Al",
         "refraction_index": 1.7,
@@ -34,7 +34,7 @@
     },
     "FC":
     {
-        "vertical_bar": [4.5, 1299, 0.8],
+        "vertical_bar": [4.5, 700.0, 0.8],
         "vertical_bar_distance": 180,
         "horizontal_bar_distance": 6,
         "horizontal_bar_1_majorAxis": 1.5,
@@ -43,9 +43,10 @@
         "horizontal_bar_2_majorAxis": 4.6,
         "horizontal_bar_2_minorAxis": 1.02,
         "cut_horizontal_bar2": 0.7,
-        "distance_to_wall": 50.0 ,
-        "sep_bar_type": 225 ,
+        "sep_bar_type": 126 ,
 
+        "distance_to_wall_x": 84.95,
+        "distance_to_wall_z": 272.50,
         "material": "G4_Al",
         "refraction_index": 3.0,
         "abs_length": 0.0001,
@@ -53,8 +54,8 @@
     },
     "Cathode_Grid":
     {
-        "length_x": 5890,
-        "length_z": 1190,
+        "length_x": 674.0,
+        "length_z": 299.3,
         "hole_x": 60,
         "hole_y": 60,
         "separation": 5
@@ -109,7 +110,8 @@
         "map_ldu": [["V","V","V","V"],
                     ["V","U","V","V"],
                     ["V","V","V","V"],
-                    ["V","V","V","V"]]
+                    ["V","V","V","V"]],
+        "only_half": 1
     }
 
 }
