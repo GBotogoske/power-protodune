@@ -276,7 +276,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double vikuitiY = (only_half == 1) ? -vikuiti_sizeY/2. : 0.;
 
     G4Box* solidVikuitiLong = new G4Box("VikuitLong",0.5*cryostat_sizeX, 0.5*vikuiti_sizeY, 0.5*Reflector_thickness);
-    G4Box* solidVikuitiEnd = new G4Box("VikuitEnd", 0.5*Reflector_thickness, 0.5*vikuiti_sizeY, 0.25*cryostat_sizeZ);
+    G4Box* solidVikuitiEnd = new G4Box("VikuitEnd", 0.5*Reflector_thickness, 0.5*vikuiti_sizeY, 0.5*cryostat_sizeZ);
     G4LogicalVolume* logicVikuitiLong = new G4LogicalVolume(solidVikuitiLong,Reflector_mat,"VikuitiLong");
     G4LogicalVolume* logicVikuitiEnd = new G4LogicalVolume(solidVikuitiEnd,Reflector_mat,"VikuitiEnd");
     G4VPhysicalVolume* physicalVikuitiLong1 = new G4PVPlacement(0,G4ThreeVector(0,vikuitiY,-(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,1,checkOverlaps);
