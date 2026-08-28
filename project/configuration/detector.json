@@ -102,14 +102,14 @@
         "abs_length": 0.000000001,
         "efficiency_UV": "efficiency_UV.json",
         "efficiency_VIS": "efficiency_VIS.json",
-        "size": 5,
+        "size": 1.25,
         "thickness": 0.8,
         "distance_vertical": 100.0,
         "distance_horizontal": 100.0,
         "reflectance": 0.2,
         "map_ldu": [["V","V","V","V"],
-                    ["V","U","V","V"],
-                    ["V","V","V","V"],
+                    ["V","U","U","V"],
+                    ["V","U","U","V"],
                     ["V","V","V","V"]],
         "only_half": 1
     }
