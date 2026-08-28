@@ -1155,21 +1155,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     double pen_hole_Y = sqrt(hole_percentage)*cathode_hole_Y;
 
 
-    // RETIRANDO OS BURACOS QUE TEMOS PARA O PEN E PARA O VIKUITI
-    /*
-    auto Reflectorhole = new G4Box("Reflector_Hole_argon", 0.5*pen_hole_X, 0.5*(Reflector_thickness), 0.5*pen_hole_Y);
-    auto logicalReflectorHole = new G4LogicalVolume(Reflectorhole, lar_mat_inside, "Reflector_Hole_argon");
-    auto PENhole = new G4Box("Reflector_Hole_argon", 0.5*pen_hole_X, 0.5*(pen_thickness), 0.5*pen_hole_Y);
-    auto logicalPENHole = new G4LogicalVolume(PENhole, lar_mat_inside, "PEN_Hole_argon");
-    */
-
     G4VisAttributes* visArgon = new G4VisAttributes(G4Colour(0.7,0.85,0.9));
     visArgon->SetVisibility(true);
     visArgon->SetForceSolid(true);
     logicalHole->SetVisAttributes(visArgon); 
     
-    //logicalReflectorHole->SetVisAttributes(visArgon); 
-    //logicalPENHole->SetVisAttributes(visArgon); 
+
 
     for (int ix = 0; ix < n_cathode_x; ix++)
     {
@@ -1182,71 +1173,30 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
             int number = ix*n_cathode_y + iz;
             auto physicalHole = new G4PVPlacement(0, pos, logicalHole,"Cathode_Hole_argon", logicalCathode, true, ix*n_cathode_y + iz,false);
 
-            // COMENTING THE LAR HOLES MADE FOR PEN AND VIKUITI
-            // auto physicalHoleReflector = new G4PVPlacement(0, pos ,logicalReflectorHole,"Reflector_Hole_argon", logicReflector, true, ix*n_cathode_y + iz,false);
-            // auto physicalHolePEN = new G4PVPlacement(0, pos ,logicalPENHole,"PEN_Hole_argon", logicPENCathode, true, ix*n_cathode_y + iz,false);
-
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Cathode", physicalHole, physicalCathode, surface_cryo_lar );
-            
-            // new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Reflector1", physicalHole, physicalReflectorTop, surface_vikuiti_lar);
-            // new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Reflector2", physicalHole, physicalReflectorBottom, surface_vikuiti_lar );
-            
-            //new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->PEN1", physicalHole, physicalPENTop, surface_PEN_lar );
-            
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->PEN2", physicalHole, physicalPENBottom, surface_PEN_lar );
-            
-            // new G4LogicalBorderSurface("PEN1-->LAr_in_Hole_" + std::to_string(number) , physicalPENTop,  physicalHole, surface_PEN_lar );
             new G4LogicalBorderSurface("PEN2-->LAr_in_Hole_" + std::to_string(number) , physicalPENBottom,  physicalHole, surface_PEN_lar );
 
-            /* ALSO COMMENTING THE BORDER SURFACES ASSOCIATED WITH THE PEN/VIKUITI LIQUID ARGON HOLES
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->Cathode", physicalHoleReflector, physicalCathode, surface_cryo_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->Reflector1", physicalHoleReflector, physicalReflectorTop, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->Reflector2", physicalHoleReflector, physicalReflectorBottom, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->PEN1", physicalHoleReflector, physicalPENTop, surface_PEN_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->PEN2", physicalHoleReflector, physicalPENBottom, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN1-->LAr_in_Hole_Ref_" + std::to_string(number) , physicalPENTop,  physicalHoleReflector, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN2-->LAr_in_Hole_Ref_" + std::to_string(number) , physicalPENBottom,  physicalHoleReflector, surface_PEN_lar );
-
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->Cathode", physicalHolePEN, physicalCathode, surface_cryo_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->Reflector1", physicalHolePEN, physicalReflectorTop, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->Reflector2", physicalHolePEN, physicalReflectorBottom, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->PEN1", physicalHolePEN, physicalPENTop, surface_PEN_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->PEN2", physicalHolePEN, physicalPENBottom, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN1-->LAr_in_Hole_PEN_" + std::to_string(number) , physicalPENTop,  physicalHolePEN, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN2-->LAr_in_Hole_PEN_" + std::to_string(number) , physicalPENBottom,  physicalHolePEN, surface_PEN_lar );
-            */
         }
     }
 
     new G4LogicalBorderSurface("LiquidArgon-->Cathode", physicalWorld, physicalCathode , surface_cryo_lar );
 
-    //new G4LogicalBorderSurface("LiquidArgon-->ReflectorT", physicalWorld, physicalReflectorTop , surface_vikuiti_lar );
     new G4LogicalBorderSurface("LiquidArgon-->ReflectorB", physicalWorld, physicalReflectorBottom , surface_vikuiti_lar );
     new G4LogicalBorderSurface("LiquidArgonInside-->Cathode", physicalInsideArgon, physicalCathode , surface_cryo_lar );
-    // new G4LogicalBorderSurface("LiquidArgonInside-->ReflectorT", physicalInsideArgon, physicalReflectorTop , surface_vikuiti_lar );
     new G4LogicalBorderSurface("LiquidArgonInside-->ReflectorB", physicalInsideArgon, physicalReflectorBottom , surface_vikuiti_lar );
-    // new G4LogicalBorderSurface("ReflectorT-->Cathode",  physicalReflectorTop ,physicalCathode, surface_vikuiti_cryo );
     new G4LogicalBorderSurface("ReflectorB-->Cathode",  physicalReflectorBottom ,physicalCathode, surface_vikuiti_cryo );
     new G4LogicalBorderSurface("PEN1 --> Cathode Grid", physicalPEN1 , physicalCathode, surface_cryo_lar );
     new G4LogicalBorderSurface("PEN2 --> Cathode Grid", physicalPEN2 , physicalCathode, surface_cryo_lar );
     new G4LogicalBorderSurface("PEN3 --> Cathode Grid", physicalPEN3 , physicalCathode, surface_cryo_lar );
     new G4LogicalBorderSurface("PEN4 --> Cathode Grid", physicalPEN4 , physicalCathode, surface_cryo_lar );
 
-/*  new G4LogicalBorderSurface("PEN1 --> ReflectorT", physicalPEN1 , physicalReflectorTop, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PEN2 --> ReflectorT", physicalPEN2 , physicalReflectorTop, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PEN3 --> ReflectorT", physicalPEN3 , physicalReflectorTop, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PEN4 --> ReflectorT", physicalPEN4 , physicalReflectorTop, surface_vikuiti_lar ); */
+
 
     new G4LogicalBorderSurface("PEN1 --> ReflectorG", physicalPEN1 , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PEN2 --> ReflectorG", physicalPEN2 , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PEN3 --> ReflectorG", physicalPEN3 , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PEN4 --> ReflectorG", physicalPEN4 , physicalReflectorBottom, surface_vikuiti_lar );
-    
-    // new G4LogicalBorderSurface("PENTop --> ReflectorT", physicalPENTop , physicalReflectorTop, surface_vikuiti_lar );
-    // new G4LogicalBorderSurface("PENTop --> LAr", physicalPENTop , physicalWorld, surface_PEN_lar );
-    // new G4LogicalBorderSurface("LAr --> PENTop",  physicalWorld, physicalPENTop , surface_PEN_lar );
-    // new G4LogicalBorderSurface("PENTop --> LArInside", physicalPENTop , physicalInsideArgon, surface_PEN_lar );
-    // new G4LogicalBorderSurface("LArInside --> PENTop",  physicalInsideArgon, physicalPENTop , surface_PEN_lar );
 
     new G4LogicalBorderSurface("PENBottom --> ReflectorBottom", physicalPENBottom , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PENBottom --> LAr", physicalPENBottom , physicalWorld, surface_PEN_lar );
@@ -1286,7 +1236,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     int size=2;
     G4double* RIndex_array   = new G4double[size];
     G4double* abs_array   = new G4double[size];
-    
+
     for (int i=0; i<size; i++) 
     {     
         RIndex_array[i]   = rindex_SiPM; 
@@ -1440,11 +1390,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4VisAttributes* visSiPMuv = new G4VisAttributes(G4Colour(0.6, 0, 0.6)); 
     visSiPMuv->SetForceSolid(true); 
     sipmuv_logical->SetVisAttributes(visSiPMuv);
-
-
-    //G4GDMLParser parser;
-    //parser.Write("geometria.gdml", physicalWorld);
-
 
     return physicalWorld;
   
