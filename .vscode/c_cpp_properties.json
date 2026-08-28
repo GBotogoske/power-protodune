@@ -7,7 +7,7 @@
                 "${env:CONDA_PREFIX}/include",
                 "${env:CONDA_PREFIX}/include/**",
                 "${env:CONDA_PREFIX}/include/Geant4/**"
-            ],    
+            ],
             "defines": [],
             "compilerPath": "/home/theobassopilon/miniforge3/envs/groot/bin/gcc",
             "cStandard": "c17",
