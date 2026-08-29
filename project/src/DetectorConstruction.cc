@@ -270,14 +270,25 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
     Reflector_mat->SetMaterialPropertiesTable(mpt_Reflector);
 
-    G4Box* solidVikuitiLong = new G4Box("VikuitLong",0.5*cryostat_sizeX, 0.5*(cryostat_sizeY-2*AnodeTickness), 0.5*Reflector_thickness);
-    G4Box* solidVikuitiEnd = new G4Box("VikuitEnd", 0.5*Reflector_thickness, 0.5*(cryostat_sizeY-2*AnodeTickness), 0.5*cryostat_sizeZ);
+    G4int only_half = config["only_half"].get<int>();
+
+    G4double vikuiti_sizeY = (only_half == 1) ?  (0.5*cryostat_sizeY-AnodeTickness) :  (cryostat_sizeY-2*AnodeTickness);
+    G4double vikuitiY = (only_half == 1) ? -vikuiti_sizeY/2. : 0.;
+
+    G4Box* solidVikuitiLong = new G4Box("VikuitLong",0.5*cryostat_sizeX, 0.5*vikuiti_sizeY, 0.5*Reflector_thickness);
+    G4Box* solidVikuitiEnd = new G4Box("VikuitEnd", 0.5*Reflector_thickness, 0.5*vikuiti_sizeY, 0.5*cryostat_sizeZ);
     G4LogicalVolume* logicVikuitiLong = new G4LogicalVolume(solidVikuitiLong,Reflector_mat,"VikuitiLong");
     G4LogicalVolume* logicVikuitiEnd = new G4LogicalVolume(solidVikuitiEnd,Reflector_mat,"VikuitiEnd");
-    G4VPhysicalVolume* physicalVikuitiLong1 = new G4PVPlacement(0,G4ThreeVector(0,0,-(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalVikuitiLong2 = new G4PVPlacement(0,G4ThreeVector(0,0,(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,2,checkOverlaps);
-    G4VPhysicalVolume* physicalVikuitiEnd1 = new G4PVPlacement(0,G4ThreeVector(-(cryostat_sizeX/2-0.5*Reflector_thickness),0,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalVikuitiEnd2 = new G4PVPlacement(0,G4ThreeVector((cryostat_sizeX/2-0.5*Reflector_thickness),0,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,2,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiLong1 = new G4PVPlacement(0,G4ThreeVector(0,vikuitiY,-(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,1,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiLong2 = new G4PVPlacement(0,G4ThreeVector(0,vikuitiY,(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,2,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiEnd1 = new G4PVPlacement(0,G4ThreeVector(-(cryostat_sizeX/2-0.5*Reflector_thickness),vikuitiY,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,1,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiEnd2 = new G4PVPlacement(0,G4ThreeVector((cryostat_sizeX/2-0.5*Reflector_thickness),vikuitiY,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,2,checkOverlaps);
+
+    auto visVikuiti = new G4VisAttributes();
+    visVikuiti->SetForceSolid(true);
+    visVikuiti->SetColor(G4Colour(1.,1.,1.));
+    logicVikuitiEnd->SetVisAttributes(visVikuiti);
+    logicVikuitiLong->SetVisAttributes(visVikuiti);
 
     // -----  Liquid Argon && ANODE && Vikuiti Interface Boundary --------
 
@@ -688,10 +699,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     cryostat_sizeX - 2*d_cryoX - FCv_sizeX - 2*cut_value1;
 
     double acrylic_Y =
-        FCv_sizeY;
+        (only_half == 1) ? FCv_sizeY/2 : FCv_sizeY;
 
     double acrylic_Z =
         cryostat_sizeZ - 2*d_cryoZ - FCv_sizeZ - 2*cut_value1;
+
+    double acrylic_Ypos = (only_half == 1) ? -FCv_sizeY/4 : 0;
+
     double acry_thickness = config_Acrylic["thickness"].get<double>()*cm;
     G4cout << "Acrylic Thickness: " << acry_thickness/m << " m" << std::endl;
     auto acrylic_wall_long = new G4Box("Acrylic_long", 0.5*acrylic_X, 0.5*acrylic_Y, 0.5*acry_thickness);
@@ -703,7 +717,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     0,
     G4ThreeVector(
         0,
-        0,
+        acrylic_Ypos,
         cryostat_sizeZ/2
         - d_cryoZ
         - 0.5*FCv_sizeZ
@@ -722,7 +736,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         0,
         G4ThreeVector(
             0,
-            0,
+            acrylic_Ypos,
             -(cryostat_sizeZ/2
             - d_cryoZ
             - 0.5*FCv_sizeZ
@@ -745,7 +759,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
             - 0.5*FCv_sizeX
             - cut_value1
             - 0.5*acry_thickness,
-            0,
+            acrylic_Ypos,
             0
         ),
         logical_Acrylic_wall_end,
@@ -764,7 +778,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
             - 0.5*FCv_sizeX
             - cut_value1
             - 0.5*acry_thickness),
-            0,
+            acrylic_Ypos,
             0
         ),
         logical_Acrylic_wall_end,
@@ -911,7 +925,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     0,
     G4ThreeVector(
         0,
-        0,
+        acrylic_Ypos,
         cryostat_sizeZ/2
         - d_cryoZ
         - 0.5*FCv_sizeZ
@@ -931,7 +945,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
         0,
         G4ThreeVector(
             0,
-            0,
+            acrylic_Ypos,
             -(cryostat_sizeZ/2
             - d_cryoZ
             - 0.5*FCv_sizeZ
@@ -956,7 +970,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
             - cut_value1
             - acry_thickness
             - 0.5*pen_thickness,
-            0,
+            acrylic_Ypos,
             0
         ),
         logical_pen_wall_end,
@@ -976,7 +990,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
             - cut_value1
             - acry_thickness
             - 0.5*pen_thickness),
-            0,
+            acrylic_Ypos,
             0
         ),
         logical_pen_wall_end,
@@ -1221,8 +1235,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double dv_SiPM = config_SiPM["distance_vertical"].get<double>()*cm;
     G4double dh_SiPM = config_SiPM["distance_horizontal"].get<double>()*cm;
     G4double SiPM_reflective = config_SiPM["reflectance"].get<double>();
-
-    G4int only_half = config_SiPM["only_half"].get<int>();
 
     std::vector<std::vector<std::string>> matrix_pos = config_SiPM["map_ldu"].get<std::vector<std::vector<std::string>>>(); //[i][j] = [linha][coluna]
     G4cout << "SiPM Refraction Index: " << rindex_SiPM << std::endl;

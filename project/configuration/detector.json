@@ -108,10 +108,9 @@
         "distance_horizontal": 100.0,
         "reflectance": 0.2,
         "map_ldu": [["V","V","V","V"],
-                    ["V","U","U","V"],
-                    ["V","U","U","V"],
-                    ["V","V","V","V"]],
-        "only_half": 1
-    }
-
+                    ["V","U","V","V"],
+                    ["V","V","V","V"],
+                    ["V","V","V","V"]]
+    },
+    "only_half": 1
 }
