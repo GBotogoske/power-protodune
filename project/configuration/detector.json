@@ -102,7 +102,7 @@
         "abs_length": 0.000000001,
         "efficiency_UV": "efficiency_UV.json",
         "efficiency_VIS": "efficiency_VIS.json",
-        "size": 1.25,
+        "size": 5,
         "thickness": 0.8,
         "distance_vertical": 100.0,
         "distance_horizontal": 100.0,
