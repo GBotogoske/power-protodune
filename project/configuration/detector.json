@@ -52,13 +52,21 @@
         "abs_length": 0.0001,
         "reflectivity": 0.9
     },
-    "Cathode_Grid":
+   "Cathode_Grid":
     {
         "length_x": 674.0,
         "length_z": 299.3,
-        "hole_x": 60,
-        "hole_y": 60,
-        "separation": 5
+
+        "block_x": 337.0,
+        "block_z": 299.3,
+
+        "hole_x": 77.25,
+        "hole_y": 67.25,
+
+        "thickness": 6.0,
+
+        "internal_distance": 4.0,
+        "external_distance": 8.0
     },
     "Acrylic":
     {
@@ -82,7 +90,7 @@
         "emissium": "pen_emissium.json",
         "time_constant": 25.0,
         "efficiency": 0.7,
-        "hole_size_percentage": 0.5,
+        "hole_size_percentage": 1.0,
         "rayleigh_scattering": 150
     },
     "Reflector":
