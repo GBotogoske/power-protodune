@@ -1014,7 +1014,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     /*G4VPhysicalVolume* physicalReflectorTop = new G4PVPlacement(0,G4ThreeVector(0,(cryostatThickness+Reflector_thickness)/2,0)
         ,logicReflector,"My_Reflector",logicInsideArgon,true,1,checkOverlaps); */
 
-    G4VPhysicalVolume* physicalReflectorBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cryostatThickness+Reflector_thickness)/2,0)
+    G4VPhysicalVolume* physicalReflectorBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cathode_thickness+Reflector_thickness)/2,0)
         ,logicReflector,"My_Reflector",logicInsideArgon,true,2,checkOverlaps);
 
       //-------------- Inserting PEN over on top of both Reflector ----------
@@ -1025,10 +1025,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     logicPENCathode->SetVisAttributes(visPEN); 
 
 
-    /* G4VPhysicalVolume* physicalPENTop = new G4PVPlacement(0,G4ThreeVector(0,(cryostatThickness+2*Reflector_thickness+pen_thickness)/2,0)
+    /* G4VPhysicalVolume* physicalPENTop = new G4PVPlacement(0,G4ThreeVector(0,(cathode_thickness+2*Reflector_thickness+pen_thickness)/2,0)
         ,logicPENCathode,"PEN_CATHODE",logicInsideArgon,true,1,checkOverlaps); */
 
-    G4VPhysicalVolume* physicalPENBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cryostatThickness+2*Reflector_thickness+pen_thickness)/2,0)
+    G4VPhysicalVolume* physicalPENBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cathode_thickness+2*Reflector_thickness+pen_thickness)/2,0)
         ,logicPENCathode,"PEN_CATHODE",logicInsideArgon,true,2,checkOverlaps);
 
     // ---- Creating Cathode grid -------- PART 2 --- ADDING HOLES
