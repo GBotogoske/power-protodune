@@ -496,138 +496,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     LogicalFCh_wall->SetVisAttributes(visFC);
     LogicalFCh_end->SetVisAttributes(visFC);
 
-    G4VPhysicalVolume* physicalFC1_v = new G4PVPlacement(
-    0,
-    G4ThreeVector(
-        -FCv_distance/2,
-        0,
-        cryostat_sizeZ/2 - d_cryoZ
-    ),
-    LogicalFCv_wall,
-    "FCv_long_wall",
-    logicWorld,
-    true,
-    1,
-    checkOverlaps
-    );
+    G4VPhysicalVolume* physicalFC1_v = new G4PVPlacement(0, G4ThreeVector(-FCv_distance/2, 0, cryostat_sizeZ/2 - d_cryoZ), LogicalFCv_wall, "FCv_long_wall", logicWorld, true, 1, checkOverlaps);
+    G4VPhysicalVolume* physicalFC2_v = new G4PVPlacement(0, G4ThreeVector(-FCv_distance/2, 0, -cryostat_sizeZ/2 + d_cryoZ), LogicalFCv_wall, "FCv_long_wall", logicWorld, true, 2, checkOverlaps);
+    G4VPhysicalVolume* physicalFC3_v = new G4PVPlacement(0, G4ThreeVector(cryostat_sizeX/2 - d_cryoX, 0, -FCv_distance/2), LogicalFCv_end, "FCv_end_wall", logicWorld, true, 1, checkOverlaps);
+    G4VPhysicalVolume* physicalFC4_v = new G4PVPlacement(0, G4ThreeVector(-cryostat_sizeX/2 + d_cryoX, 0, -FCv_distance/2), LogicalFCv_end, "FCv_end_wall", logicWorld, true, 2, checkOverlaps);
 
-    G4VPhysicalVolume* physicalFC2_v = new G4PVPlacement(
-        0,
-        G4ThreeVector(
-            -FCv_distance/2,
-            0,
-            -cryostat_sizeZ/2 + d_cryoZ
-        ),
-        LogicalFCv_wall,
-        "FCv_long_wall",
-        logicWorld,
-        true,
-        2,
-        checkOverlaps
-    );
-
-    G4VPhysicalVolume* physicalFC3_v = new G4PVPlacement(
-        0,
-        G4ThreeVector(
-            cryostat_sizeX/2 - d_cryoX,
-            0,
-            -FCv_distance/2
-        ),
-        LogicalFCv_end,
-        "FCv_end_wall",
-        logicWorld,
-        true,
-        1,
-        checkOverlaps
-    );
-
-    G4VPhysicalVolume* physicalFC4_v = new G4PVPlacement(
-        0,
-        G4ThreeVector(
-            -cryostat_sizeX/2 + d_cryoX,
-            0,
-            -FCv_distance/2
-        ),
-        LogicalFCv_end,
-        "FCv_end_wall",
-        logicWorld,
-        true,
-        2,
-        checkOverlaps
-    );
-
-
-    G4VPhysicalVolume* physicalFC1_h = new G4PVPlacement(
-        rotFinal1,
-        G4ThreeVector(
-            0,
-            -FCh_distance/2,
-            cryostat_sizeZ/2
-            - d_cryoZ
-            - FCv_sizeZ/2
-            - (cut_value1 - barH_eixoY1/2)
-        ),
-        LogicalFCh_wall,
-        "FCh_long_wall",
-        logicWorld,
-        true,
-        1,
-        checkOverlaps
-    );
-
-    G4VPhysicalVolume* physicalFC2_h = new G4PVPlacement(
-        rotFinal2,
-        G4ThreeVector(
-            0,
-            +FCh_distance/2,
-            -(cryostat_sizeZ/2
-            - d_cryoZ
-            - FCv_sizeZ/2
-            - (cut_value1 - barH_eixoY1/2))
-        ),
-        LogicalFCh_wall,
-        "FCh_long_wall",
-        logicWorld,
-        true,
-        2,
-        checkOverlaps
-    );
-
-    G4VPhysicalVolume* physicalFC3_h = new G4PVPlacement(
-        rotTopZ,
-        G4ThreeVector(
-            -(cryostat_sizeX/2
-            - d_cryoX
-            - FCv_sizeX/2
-            - (cut_value1 - barH_eixoY1/2)),
-            +FCh_distance/2,
-            0
-        ),
-        LogicalFCh_end,
-        "FCh_end_wall",
-        logicWorld,
-        true,
-        1,
-        checkOverlaps
-    );
-
-    G4VPhysicalVolume* physicalFC4_h = new G4PVPlacement(
-        minus_rotTopZ,
-        G4ThreeVector(
-            cryostat_sizeX/2
-            - d_cryoX
-            - FCv_sizeX/2
-            - (cut_value1 - barH_eixoY1/2),
-            -FCh_distance/2,
-            0
-        ),
-        LogicalFCh_end,
-        "FCh_end_wall",
-        logicWorld,
-        true,
-        2,
-        checkOverlaps
-    );         
+    G4VPhysicalVolume* physicalFC1_h = new G4PVPlacement(rotFinal1, G4ThreeVector(0, -FCh_distance/2, cryostat_sizeZ/2 - d_cryoZ - FCv_sizeZ/2 - (cut_value1 - barH_eixoY1/2)), LogicalFCh_wall, "FCh_long_wall", logicWorld, true, 1, checkOverlaps);
+    G4VPhysicalVolume* physicalFC2_h = new G4PVPlacement(rotFinal2, G4ThreeVector(0, +FCh_distance/2, -(cryostat_sizeZ/2 - d_cryoZ - FCv_sizeZ/2 - (cut_value1 - barH_eixoY1/2))), LogicalFCh_wall, "FCh_long_wall", logicWorld, true, 2, checkOverlaps);
+    G4VPhysicalVolume* physicalFC3_h = new G4PVPlacement(rotTopZ, G4ThreeVector(-(cryostat_sizeX/2 - d_cryoX - FCv_sizeX/2 - (cut_value1 - barH_eixoY1/2)), +FCh_distance/2, 0), LogicalFCh_end, "FCh_end_wall", logicWorld, true, 1, checkOverlaps);
+    G4VPhysicalVolume* physicalFC4_h = new G4PVPlacement(minus_rotTopZ, G4ThreeVector(cryostat_sizeX/2 - d_cryoX - FCv_sizeX/2 - (cut_value1 - barH_eixoY1/2), -FCh_distance/2, 0), LogicalFCh_end, "FCh_end_wall", logicWorld, true, 2, checkOverlaps);        
 
     // -----  Liquid Argon && FC Interface Boundary --------
 
@@ -1118,18 +995,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     double cathode_Z = config_Cathode["length_z"].get<double>()*cm; //pen_Z - 2*pen_thickness;
     double cathode_hole_X = config_Cathode["hole_x"].get<double>()*cm;
     double cathode_hole_Y = config_Cathode["hole_y"].get<double>()*cm;
-    double cathode_separation = config_Cathode["separation"].get<double>()*cm;
+    double cathode_thickness = config_Cathode["thickness"].get<double>()*cm;
     G4cout << "Cathode Size: " << cathode_X/m << " m X " << cathode_Z/m << " m" << std::endl;
     G4cout << "Cathode Hole Size: " << cathode_hole_X/m << " m X " << cathode_hole_Y/m << " m" << std::endl;
-    G4cout << "Cathode Hole Separation: " << cathode_separation/m << " m" << std::endl;
 
-    auto cathode = new G4Box("Cathode", 0.5*Lar_inside_X, 0.5*cryostatThickness, 0.5*Lar_inside_Z);
+    auto cathode = new G4Box("Cathode", 0.5*cathode_X, 0.5*cathode_thickness, 0.5*cathode_Z);
     auto logicalCathode = new G4LogicalVolume(cathode, FC_mat, "Cathode");
     G4VPhysicalVolume* physicalCathode = new G4PVPlacement(0, G4ThreeVector(0,0,0), logicalCathode, "Cathode", logicInsideArgon, false, 0,true);
 
     // ----------- Inserting VIKUITI over and under cathode -------------
     
-    auto reflector = new G4Box("Reflector", 0.5*Lar_inside_X, 0.5*Reflector_thickness, 0.5*Lar_inside_Z);
+    auto reflector = new G4Box("Reflector", 0.5*cathode_X, 0.5*Reflector_thickness, 0.5*cathode_Z);
     G4LogicalVolume* logicReflector = new G4LogicalVolume(reflector,Reflector_mat,"Reflector");
     G4VisAttributes* visReflector = new G4VisAttributes(G4Colour(0.,0.5,0.9));
     visReflector->SetForceSolid(true);
@@ -1143,7 +1019,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
       //-------------- Inserting PEN over on top of both Reflector ----------
 
-    auto Pen_cathode = new G4Box("PEN_cathode", 0.5*Lar_inside_X, 0.5*pen_thickness, 0.5*Lar_inside_Z);
+    auto Pen_cathode = new G4Box("PEN_cathode", 0.5*cathode_X, 0.5*pen_thickness, 0.5*cathode_Z);
     G4LogicalVolume* logicPENCathode = new G4LogicalVolume(Pen_cathode,PEN_mat,"PEN_Cathode");
 
     logicPENCathode->SetVisAttributes(visPEN); 
@@ -1157,10 +1033,43 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
     // ---- Creating Cathode grid -------- PART 2 --- ADDING HOLES
 
-    auto cathodehole = new G4Box("Cathode_Hole_argon", 0.5*cathode_hole_X, 0.5*cryostatThickness, 0.5*cathode_hole_Y);
+    auto cathodehole = new G4Box("Cathode_Hole_argon", 0.5*cathode_hole_X, 0.5*cathode_thickness, 0.5*cathode_hole_Y);
     auto logicalHole = new G4LogicalVolume(cathodehole, lar_mat_inside, "Cathode_Hole_argon");
-    int n_cathode_x = (cathode_X+cathode_separation)/(cathode_hole_X+cathode_separation);
-    int n_cathode_y = (cathode_Z+cathode_separation)/(cathode_hole_Y+cathode_separation);
+    
+    double cathode_internal_distance = config_Cathode["internal_distance"].get<double>()*cm;
+    double cathode_external_distance = config_Cathode["external_distance"].get<double>()*cm;
+    double cathode_block_X = config_Cathode["block_x"].get<double>()*cm;
+    double cathode_block_Z = config_Cathode["block_z"].get<double>()*cm;
+
+    int n_blocks_x = static_cast<int>(std::round(cathode_X / cathode_block_X));
+    int n_blocks_z = static_cast<int>(std::round(cathode_Z / cathode_block_Z));
+
+    double x_inner = 0.5*(cathode_hole_X + cathode_external_distance);
+    double x_outer = x_inner + cathode_hole_X + cathode_internal_distance;
+
+    double z_inner = 0.5*(cathode_hole_Y + cathode_external_distance);
+    double z_outer = z_inner + cathode_hole_Y + cathode_internal_distance;
+
+    std::vector<double> cathode_x_local = {-x_outer, -x_inner, x_inner, x_outer};
+    std::vector<double> cathode_z_local = {-z_outer, -z_inner, z_inner, z_outer};
+
+    std::vector<double> cathode_x_positions;
+    for (int ibx = 0; ibx < n_blocks_x; ibx++)
+    {
+        double block_center_x = (ibx - (n_blocks_x - 1)/2.0) * cathode_block_X;
+
+        for (double x_local : cathode_x_local)
+            cathode_x_positions.push_back(block_center_x + x_local);
+    }
+
+    std::vector<double> cathode_z_positions;
+    for (int ibz = 0; ibz < n_blocks_z; ibz++)
+    {
+        double block_center_z = (ibz - (n_blocks_z - 1)/2.0) * cathode_block_Z;
+
+        for (double z_local : cathode_z_local)
+            cathode_z_positions.push_back(block_center_z + z_local);
+    }
 
     auto hole_percentage = config_PEN["hole_size_percentage"].get<double>();
     G4cout << "PEN/VIKUITI Hole in Cathode: " << hole_percentage << std::endl;
@@ -1175,16 +1084,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     
 
 
-    for (int ix = 0; ix < n_cathode_x; ix++)
+    for (size_t ix = 0; ix < cathode_x_positions.size(); ix++)
     {
-        for (int iz = 0; iz < n_cathode_y; iz++) 
+        for (size_t iz = 0; iz < cathode_z_positions.size(); iz++)
         {
-            double x_pos = (ix - (n_cathode_x-1)/2.0)*(cathode_hole_X + cathode_separation);
-            double z_pos = (iz - (n_cathode_y-1)/2.0)*(cathode_hole_Y + cathode_separation);
+            double x_pos = cathode_x_positions[ix];
+            double z_pos = cathode_z_positions[iz];
+
             G4ThreeVector pos(x_pos, 0, z_pos);
 
-            int number = ix*n_cathode_y + iz;
-            auto physicalHole = new G4PVPlacement(0, pos, logicalHole,"Cathode_Hole_argon", logicalCathode, true, ix*n_cathode_y + iz,false);
+            int number = ix * cathode_z_positions.size() + iz;
+
+            auto physicalHole = new G4PVPlacement(0,pos,logicalHole,"Cathode_Hole_argon",logicalCathode,true,number,false);
 
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Cathode", physicalHole, physicalCathode, surface_cryo_lar );
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->PEN2", physicalHole, physicalPENBottom, surface_PEN_lar );
