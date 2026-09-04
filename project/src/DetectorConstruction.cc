@@ -1096,8 +1096,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
             int number = ix * cathode_z_positions.size() + iz;
 
             auto physicalHole = new G4PVPlacement(0,pos,logicalHole,"Cathode_Hole_argon",logicalCathode,true,number,false);
-            auto physicalHoleReflector = new G4PVPlacement(0,pos,logicalReflectorHole,"Reflector_Hole_argon",logicReflector,true,number,false);
-            auto physicalHolePEN = new G4PVPlacement(0,pos,logicalPENHole,"PEN_Hole_argon",logicPENCathode,true,number,false);
 
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Cathode", physicalHole, physicalCathode, surface_cryo_lar );
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->PEN2", physicalHole, physicalPENBottom, surface_PEN_lar );
