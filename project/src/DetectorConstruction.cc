@@ -999,13 +999,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4cout << "Cathode Size: " << cathode_X/m << " m X " << cathode_Z/m << " m" << std::endl;
     G4cout << "Cathode Hole Size: " << cathode_hole_X/m << " m X " << cathode_hole_Y/m << " m" << std::endl;
 
+    double cathode_internal_distance = config_Cathode["internal_distance"].get<double>()*cm;
+    double cathode_external_distance = config_Cathode["external_distance"].get<double>()*cm;
+    double cathode_block_X = config_Cathode["block_x"].get<double>()*cm;
+    double cathode_block_Z = config_Cathode["block_z"].get<double>()*cm;
+
     auto cathode = new G4Box("Cathode", 0.5*cathode_X, 0.5*cathode_thickness, 0.5*cathode_Z);
     auto logicalCathode = new G4LogicalVolume(cathode, FC_mat, "Cathode");
     G4VPhysicalVolume* physicalCathode = new G4PVPlacement(0, G4ThreeVector(0,0,0), logicalCathode, "Cathode", logicInsideArgon, false, 0,true);
 
     // ----------- Inserting VIKUITI over and under cathode -------------
     
-    auto reflector = new G4Box("Reflector", 0.5*cathode_X, 0.5*Reflector_thickness, 0.5*cathode_Z);
+    auto reflector = new G4Box("Reflector", 0.5*cathode_X+cathode_internal_distance, 0.5*Reflector_thickness, 0.5*cathode_Z+cathode_internal_distance);
     G4LogicalVolume* logicReflector = new G4LogicalVolume(reflector,Reflector_mat,"Reflector");
     G4VisAttributes* visReflector = new G4VisAttributes(G4Colour(0.,0.5,0.9));
     visReflector->SetForceSolid(true);
@@ -1019,7 +1024,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
       //-------------- Inserting PEN over on top of both Reflector ----------
 
-    auto Pen_cathode = new G4Box("PEN_cathode", 0.5*cathode_X, 0.5*pen_thickness, 0.5*cathode_Z);
+    auto Pen_cathode = new G4Box("PEN_cathode", 0.5*cathode_X+cathode_internal_distance, 0.5*pen_thickness, 0.5*cathode_Z+cathode_internal_distance);
     G4LogicalVolume* logicPENCathode = new G4LogicalVolume(Pen_cathode,PEN_mat,"PEN_Cathode");
 
     logicPENCathode->SetVisAttributes(visPEN); 
@@ -1036,10 +1041,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     auto cathodehole = new G4Box("Cathode_Hole_argon", 0.5*cathode_hole_X, 0.5*cathode_thickness, 0.5*cathode_hole_Y);
     auto logicalHole = new G4LogicalVolume(cathodehole, lar_mat_inside, "Cathode_Hole_argon");
     
-    double cathode_internal_distance = config_Cathode["internal_distance"].get<double>()*cm;
-    double cathode_external_distance = config_Cathode["external_distance"].get<double>()*cm;
-    double cathode_block_X = config_Cathode["block_x"].get<double>()*cm;
-    double cathode_block_Z = config_Cathode["block_z"].get<double>()*cm;
+   
 
     int n_blocks_x = static_cast<int>(std::round(cathode_X / cathode_block_X));
     int n_blocks_z = static_cast<int>(std::round(cathode_Z / cathode_block_Z));
