@@ -54,6 +54,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     fGPS->SetParticlePosition(G4ThreeVector(0.,0.,0.));
     fGPS->GeneratePrimaryVertex(anEvent);
     */
+   
     G4ParticleDefinition* photon = G4ParticleTable::GetParticleTable()->FindParticle("opticalphoton");
 
     float this_probability = 0.3; // quantity of argon light
@@ -83,7 +84,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         {
             // Sorteia posição dentro do criostato
             x_pos = (-0.25 + 0.5*G4UniformRand())*m;
+
             y_pos = (-1 + 2*G4UniformRand())*cryostat_sizeY/2;
+            
             z_pos = (-1 + 2*G4UniformRand())*cryostat_sizeZ/2;
 
             pos = G4ThreeVector(x_pos, y_pos, z_pos);

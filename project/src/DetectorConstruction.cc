@@ -1113,7 +1113,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     new G4LogicalBorderSurface("LiquidArgonInside-->AnodeBottom", physicalInsideArgon, physicalBottomAnode , surface_anode_lar );
 
     // ---- Creating Cathode grid -------- 
-
     auto config_Cathode = config["Cathode_Grid"];
     double cathode_X = config_Cathode["length_x"].get<double>()*cm; //pen_X - 2*pen_thickness;
     double cathode_Z = config_Cathode["length_z"].get<double>()*cm; //pen_Z - 2*pen_thickness;

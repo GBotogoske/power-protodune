@@ -18,7 +18,7 @@ RunAction::RunAction(): G4UserRunAction(), fOutputFileName("./Data") //, fPenCou
 {
     //G4AccumulableManager::Instance()->RegisterAccumulable(fPenCount);
     fRunMessenger = new RunActionMessenger(this);
-    G4RunManager::GetRunManager()->SetPrintProgress(1);
+    G4RunManager::GetRunManager()->SetPrintProgress(100000);
     G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
     G4cout << "Using " << analysisManager->GetType() << G4endl;
     analysisManager->SetNtupleMerging(true);
@@ -33,6 +33,15 @@ RunAction::RunAction(): G4UserRunAction(), fOutputFileName("./Data") //, fPenCou
     analysisManager->CreateNtupleDColumn(0,"detectorID");
 
     analysisManager->FinishNtuple(0);
+
+    analysisManager->CreateNtuple("Optical_Properties","Optical_Properties");
+    analysisManager->CreateNtupleDColumn(1,"emmited_wabelenght_PEN");
+    analysisManager->CreateNtupleDColumn(1,"absorbed_wavelenght_PEN");
+    // ADD EVENT ID
+
+    analysisManager->FinishNtuple(1);
+
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
