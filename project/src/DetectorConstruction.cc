@@ -270,14 +270,25 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   
     Reflector_mat->SetMaterialPropertiesTable(mpt_Reflector);
 
-    G4Box* solidVikuitiLong = new G4Box("VikuitLong",0.5*cryostat_sizeX, 0.5*(cryostat_sizeY-2*AnodeTickness), 0.5*Reflector_thickness);
-    G4Box* solidVikuitiEnd = new G4Box("VikuitEnd", 0.5*Reflector_thickness, 0.5*(cryostat_sizeY-2*AnodeTickness), 0.5*cryostat_sizeZ);
+    G4int only_half = config["only_half"].get<int>();
+
+    G4double vikuiti_sizeY = (only_half == 1) ?  (0.5*cryostat_sizeY-AnodeTickness) :  (cryostat_sizeY-2*AnodeTickness);
+    G4double vikuitiY = (only_half == 1) ? -vikuiti_sizeY/2. : 0.;
+
+    G4Box* solidVikuitiLong = new G4Box("VikuitLong",0.5*cryostat_sizeX, 0.5*vikuiti_sizeY, 0.5*Reflector_thickness);
+    G4Box* solidVikuitiEnd = new G4Box("VikuitEnd", 0.5*Reflector_thickness, 0.5*vikuiti_sizeY, 0.5*cryostat_sizeZ);
     G4LogicalVolume* logicVikuitiLong = new G4LogicalVolume(solidVikuitiLong,Reflector_mat,"VikuitiLong");
     G4LogicalVolume* logicVikuitiEnd = new G4LogicalVolume(solidVikuitiEnd,Reflector_mat,"VikuitiEnd");
-    G4VPhysicalVolume* physicalVikuitiLong1 = new G4PVPlacement(0,G4ThreeVector(0,0,-(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalVikuitiLong2 = new G4PVPlacement(0,G4ThreeVector(0,0,(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,2,checkOverlaps);
-    G4VPhysicalVolume* physicalVikuitiEnd1 = new G4PVPlacement(0,G4ThreeVector(-(cryostat_sizeX/2-0.5*Reflector_thickness),0,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalVikuitiEnd2 = new G4PVPlacement(0,G4ThreeVector((cryostat_sizeX/2-0.5*Reflector_thickness),0,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,2,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiLong1 = new G4PVPlacement(0,G4ThreeVector(0,vikuitiY,-(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,1,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiLong2 = new G4PVPlacement(0,G4ThreeVector(0,vikuitiY,(cryostat_sizeZ/2-0.5*Reflector_thickness)),logicVikuitiLong,"LogicVikuiteLong",logicWorld,true,2,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiEnd1 = new G4PVPlacement(0,G4ThreeVector(-(cryostat_sizeX/2-0.5*Reflector_thickness),vikuitiY,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,1,checkOverlaps);
+    G4VPhysicalVolume* physicalVikuitiEnd2 = new G4PVPlacement(0,G4ThreeVector((cryostat_sizeX/2-0.5*Reflector_thickness),vikuitiY,0),logicVikuitiEnd,"LogicVikuiteEnd",logicWorld,true,2,checkOverlaps);
+
+    auto visVikuiti = new G4VisAttributes();
+    visVikuiti->SetForceSolid(true);
+    visVikuiti->SetColor(G4Colour(1.,1.,1.));
+    logicVikuitiEnd->SetVisAttributes(visVikuiti);
+    logicVikuitiLong->SetVisAttributes(visVikuiti);
 
     // -----  Liquid Argon && ANODE && Vikuiti Interface Boundary --------
 
@@ -565,10 +576,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     cryostat_sizeX - 2*d_cryoX - FCv_sizeX - 2*cut_value1;
 
     double acrylic_Y =
-        FCv_sizeY;
+        (only_half == 1) ? FCv_sizeY/2 : FCv_sizeY;
 
     double acrylic_Z =
         cryostat_sizeZ - 2*d_cryoZ - FCv_sizeZ - 2*cut_value1;
+
+    double acrylic_Ypos = (only_half == 1) ? -FCv_sizeY/4 : 0;
+
     double acry_thickness = config_Acrylic["thickness"].get<double>()*cm;
     G4cout << "Acrylic Thickness: " << acry_thickness/m << " m" << std::endl;
     auto acrylic_wall_long = new G4Box("Acrylic_long", 0.5*acrylic_X, 0.5*acrylic_Y, 0.5*acry_thickness);
@@ -576,11 +590,82 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     auto logical_Acrylic_wall_long = new G4LogicalVolume(acrylic_wall_long, Acry_mat , "Acrylic_long");
     auto logical_Acrylic_wall_end = new G4LogicalVolume(acrylic_wall_end, Acry_mat , "Acrylic_end");
 
-    G4VPhysicalVolume* physicalAcrylical1 = new G4PVPlacement(0, G4ThreeVector(0, 0, cryostat_sizeZ/2 - d_cryoZ - 0.5*FCv_sizeZ - cut_value1 - 0.5*acry_thickness), logical_Acrylic_wall_long, "Acrylical_long", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalAcrylical2 = new G4PVPlacement(0, G4ThreeVector(0, 0, -(cryostat_sizeZ/2 - d_cryoZ - 0.5*FCv_sizeZ - cut_value1 - 0.5*acry_thickness)), logical_Acrylic_wall_long, "Acrylical_long", logicWorld, true, 2, checkOverlaps);
-    G4VPhysicalVolume* physicalAcrylical3 = new G4PVPlacement(0, G4ThreeVector(cryostat_sizeX/2 - d_cryoX - 0.5*FCv_sizeX - cut_value1 - 0.5*acry_thickness, 0, 0), logical_Acrylic_wall_end, "Acrylical_end", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalAcrylical4 = new G4PVPlacement(0, G4ThreeVector(-(cryostat_sizeX/2 - d_cryoX - 0.5*FCv_sizeX - cut_value1 - 0.5*acry_thickness), 0, 0), logical_Acrylic_wall_end, "Acrylical_end", logicWorld, true, 2, checkOverlaps);
-            
+    G4VPhysicalVolume* physicalAcrylical1 = new G4PVPlacement(
+    0,
+    G4ThreeVector(
+        0,
+        acrylic_Ypos,
+        cryostat_sizeZ/2
+        - d_cryoZ
+        - 0.5*FCv_sizeZ
+        - cut_value1
+        - 0.5*acry_thickness
+    ),
+    logical_Acrylic_wall_long,
+    "Acrylical_long",
+    logicWorld,
+    true,
+    1,
+    checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalAcrylical2 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            0,
+            acrylic_Ypos,
+            -(cryostat_sizeZ/2
+            - d_cryoZ
+            - 0.5*FCv_sizeZ
+            - cut_value1
+            - 0.5*acry_thickness)
+        ),
+        logical_Acrylic_wall_long,
+        "Acrylical_long",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalAcrylical3 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - 0.5*acry_thickness,
+            acrylic_Ypos,
+            0
+        ),
+        logical_Acrylic_wall_end,
+        "Acrylical_end",
+        logicWorld,
+        true,
+        1,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalAcrylical4 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            -(cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - 0.5*acry_thickness),
+            acrylic_Ypos,
+            0
+        ),
+        logical_Acrylic_wall_end,
+        "Acrylical_end",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+        
     G4VisAttributes* visAcry = new G4VisAttributes(G4Colour(0.8, 0.1, 0.1)); 
     visAcry->SetForceSolid(true); 
     logical_Acrylic_wall_long->SetVisAttributes(visAcry);
@@ -713,11 +798,86 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     auto logical_pen_wall_long = new G4LogicalVolume(pen_wall_long, PEN_mat , "PEN_long");
     auto logical_pen_wall_end = new G4LogicalVolume(pen_wall_end, PEN_mat , "PEN_end");
 
-    G4VPhysicalVolume* physicalPEN1 = new G4PVPlacement(0, G4ThreeVector(0, 0, cryostat_sizeZ/2 - d_cryoZ - 0.5*FCv_sizeZ - cut_value1 - acry_thickness - 0.5*pen_thickness), logical_pen_wall_long, "PEN_long", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalPEN2 = new G4PVPlacement(0, G4ThreeVector(0, 0, -(cryostat_sizeZ/2 - d_cryoZ - 0.5*FCv_sizeZ - cut_value1 - acry_thickness - 0.5*pen_thickness)), logical_pen_wall_long, "PEN_long", logicWorld, true, 2, checkOverlaps);
-    G4VPhysicalVolume* physicalPEN3 = new G4PVPlacement(0, G4ThreeVector(cryostat_sizeX/2 - d_cryoX - 0.5*FCv_sizeX - cut_value1 - acry_thickness - 0.5*pen_thickness, 0, 0), logical_pen_wall_end, "PEN_end", logicWorld, true, 1, checkOverlaps);
-    G4VPhysicalVolume* physicalPEN4 = new G4PVPlacement(0, G4ThreeVector(-(cryostat_sizeX/2 - d_cryoX - 0.5*FCv_sizeX - cut_value1 - acry_thickness - 0.5*pen_thickness), 0, 0), logical_pen_wall_end, "PEN_end", logicWorld, true, 2, checkOverlaps);
-        
+    G4VPhysicalVolume* physicalPEN1 = new G4PVPlacement(
+    0,
+    G4ThreeVector(
+        0,
+        acrylic_Ypos,
+        cryostat_sizeZ/2
+        - d_cryoZ
+        - 0.5*FCv_sizeZ
+        - cut_value1
+        - acry_thickness
+        - 0.5*pen_thickness
+    ),
+    logical_pen_wall_long,
+    "PEN_long",
+    logicWorld,
+    true,
+    1,
+    checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalPEN2 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            0,
+            acrylic_Ypos,
+            -(cryostat_sizeZ/2
+            - d_cryoZ
+            - 0.5*FCv_sizeZ
+            - cut_value1
+            - acry_thickness
+            - 0.5*pen_thickness)
+        ),
+        logical_pen_wall_long,
+        "PEN_long",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalPEN3 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - acry_thickness
+            - 0.5*pen_thickness,
+            acrylic_Ypos,
+            0
+        ),
+        logical_pen_wall_end,
+        "PEN_end",
+        logicWorld,
+        true,
+        1,
+        checkOverlaps
+    );
+
+    G4VPhysicalVolume* physicalPEN4 = new G4PVPlacement(
+        0,
+        G4ThreeVector(
+            -(cryostat_sizeX/2
+            - d_cryoX
+            - 0.5*FCv_sizeX
+            - cut_value1
+            - acry_thickness
+            - 0.5*pen_thickness),
+            acrylic_Ypos,
+            0
+        ),
+        logical_pen_wall_end,
+        "PEN_end",
+        logicWorld,
+        true,
+        2,
+        checkOverlaps
+    );
+    
     G4VisAttributes* visPEN = new G4VisAttributes(G4Colour(1, 1, 0.1)); 
     visPEN->SetForceSolid(true); 
     logical_pen_wall_long->SetVisAttributes(visPEN);
@@ -830,7 +990,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     new G4LogicalBorderSurface("LiquidArgonInside-->AnodeBottom", physicalInsideArgon, physicalBottomAnode , surface_anode_lar );
 
     // ---- Creating Cathode grid -------- 
-
     auto config_Cathode = config["Cathode_Grid"];
     double cathode_X = config_Cathode["length_x"].get<double>()*cm; //pen_X - 2*pen_thickness;
     double cathode_Z = config_Cathode["length_z"].get<double>()*cm; //pen_Z - 2*pen_thickness;
@@ -851,9 +1010,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4VisAttributes* visReflector = new G4VisAttributes(G4Colour(0.,0.5,0.9));
     visReflector->SetForceSolid(true);
     logicReflector->SetVisAttributes(visReflector); 
-    G4VPhysicalVolume* physicalReflectorTop = new G4PVPlacement(0,G4ThreeVector(0,(cathode_thickness+Reflector_thickness)/2,0)
-        ,logicReflector,"My_Reflector",logicInsideArgon,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalReflectorBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cathode_thickness+Reflector_thickness)/2,0)
+
+    /*G4VPhysicalVolume* physicalReflectorTop = new G4PVPlacement(0,G4ThreeVector(0,(cryostatThickness+Reflector_thickness)/2,0)
+        ,logicReflector,"My_Reflector",logicInsideArgon,true,1,checkOverlaps); */
+
+    G4VPhysicalVolume* physicalReflectorBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cryostatThickness+Reflector_thickness)/2,0)
         ,logicReflector,"My_Reflector",logicInsideArgon,true,2,checkOverlaps);
 
       //-------------- Inserting PEN over on top of both Reflector ----------
@@ -863,9 +1024,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
     logicPENCathode->SetVisAttributes(visPEN); 
 
-    G4VPhysicalVolume* physicalPENTop = new G4PVPlacement(0,G4ThreeVector(0,(cathode_thickness+2*Reflector_thickness+pen_thickness)/2,0)
-        ,logicPENCathode,"PEN_CATHODE",logicInsideArgon,true,1,checkOverlaps);
-    G4VPhysicalVolume* physicalPENBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cathode_thickness+2*Reflector_thickness+pen_thickness)/2,0)
+
+    /* G4VPhysicalVolume* physicalPENTop = new G4PVPlacement(0,G4ThreeVector(0,(cryostatThickness+2*Reflector_thickness+pen_thickness)/2,0)
+        ,logicPENCathode,"PEN_CATHODE",logicInsideArgon,true,1,checkOverlaps); */
+
+    G4VPhysicalVolume* physicalPENBottom = new G4PVPlacement(0,G4ThreeVector(0,-(cryostatThickness+2*Reflector_thickness+pen_thickness)/2,0)
         ,logicPENCathode,"PEN_CATHODE",logicInsideArgon,true,2,checkOverlaps);
 
     // ---- Creating Cathode grid -------- PART 2 --- ADDING HOLES
@@ -913,17 +1076,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     double pen_hole_X = sqrt(hole_percentage)*cathode_hole_X;
     double pen_hole_Y = sqrt(hole_percentage)*cathode_hole_Y;
 
-    auto Reflectorhole = new G4Box("Reflector_Hole_argon", 0.5*pen_hole_X, 0.5*(Reflector_thickness), 0.5*pen_hole_Y);
-    auto logicalReflectorHole = new G4LogicalVolume(Reflectorhole, lar_mat_inside, "Reflector_Hole_argon");
-    auto PENhole = new G4Box("Reflector_Hole_argon", 0.5*pen_hole_X, 0.5*(pen_thickness), 0.5*pen_hole_Y);
-    auto logicalPENHole = new G4LogicalVolume(PENhole, lar_mat_inside, "PEN_Hole_argon");
- 
+
     G4VisAttributes* visArgon = new G4VisAttributes(G4Colour(0.7,0.85,0.9));
     visArgon->SetVisibility(true);
     visArgon->SetForceSolid(true);
     logicalHole->SetVisAttributes(visArgon); 
-    logicalReflectorHole->SetVisAttributes(visArgon); 
-    logicalPENHole->SetVisAttributes(visArgon); 
+    
+
 
     for (size_t ix = 0; ix < cathode_x_positions.size(); ix++)
     {
@@ -941,56 +1100,30 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
             auto physicalHolePEN = new G4PVPlacement(0,pos,logicalPENHole,"PEN_Hole_argon",logicPENCathode,true,number,false);
 
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Cathode", physicalHole, physicalCathode, surface_cryo_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Reflector1", physicalHole, physicalReflectorTop, surface_vikuiti_lar);
-            new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->Reflector2", physicalHole, physicalReflectorBottom, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->PEN1", physicalHole, physicalPENTop, surface_PEN_lar );
             new G4LogicalBorderSurface("LAr_in_Hole_" + std::to_string(number) + "-->PEN2", physicalHole, physicalPENBottom, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN1-->LAr_in_Hole_" + std::to_string(number) , physicalPENTop,  physicalHole, surface_PEN_lar );
             new G4LogicalBorderSurface("PEN2-->LAr_in_Hole_" + std::to_string(number) , physicalPENBottom,  physicalHole, surface_PEN_lar );
 
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->Cathode", physicalHoleReflector, physicalCathode, surface_cryo_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->Reflector1", physicalHoleReflector, physicalReflectorTop, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->Reflector2", physicalHoleReflector, physicalReflectorBottom, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->PEN1", physicalHoleReflector, physicalPENTop, surface_PEN_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_Ref_" + std::to_string(number) + "-->PEN2", physicalHoleReflector, physicalPENBottom, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN1-->LAr_in_Hole_Ref_" + std::to_string(number) , physicalPENTop,  physicalHoleReflector, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN2-->LAr_in_Hole_Ref_" + std::to_string(number) , physicalPENBottom,  physicalHoleReflector, surface_PEN_lar );
-
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->Cathode", physicalHolePEN, physicalCathode, surface_cryo_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->Reflector1", physicalHolePEN, physicalReflectorTop, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->Reflector2", physicalHolePEN, physicalReflectorBottom, surface_vikuiti_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->PEN1", physicalHolePEN, physicalPENTop, surface_PEN_lar );
-            new G4LogicalBorderSurface("LAr_in_Hole_PEN_" + std::to_string(number) + "-->PEN2", physicalHolePEN, physicalPENBottom, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN1-->LAr_in_Hole_PEN_" + std::to_string(number) , physicalPENTop,  physicalHolePEN, surface_PEN_lar );
-            new G4LogicalBorderSurface("PEN2-->LAr_in_Hole_PEN_" + std::to_string(number) , physicalPENBottom,  physicalHolePEN, surface_PEN_lar );
         }
     }
 
     new G4LogicalBorderSurface("LiquidArgon-->Cathode", physicalWorld, physicalCathode , surface_cryo_lar );
-    new G4LogicalBorderSurface("LiquidArgon-->ReflectorT", physicalWorld, physicalReflectorTop , surface_vikuiti_lar );
+
     new G4LogicalBorderSurface("LiquidArgon-->ReflectorB", physicalWorld, physicalReflectorBottom , surface_vikuiti_lar );
     new G4LogicalBorderSurface("LiquidArgonInside-->Cathode", physicalInsideArgon, physicalCathode , surface_cryo_lar );
-    new G4LogicalBorderSurface("LiquidArgonInside-->ReflectorT", physicalInsideArgon, physicalReflectorTop , surface_vikuiti_lar );
     new G4LogicalBorderSurface("LiquidArgonInside-->ReflectorB", physicalInsideArgon, physicalReflectorBottom , surface_vikuiti_lar );
-    new G4LogicalBorderSurface("ReflectorT-->Cathode",  physicalReflectorTop ,physicalCathode, surface_vikuiti_cryo );
     new G4LogicalBorderSurface("ReflectorB-->Cathode",  physicalReflectorBottom ,physicalCathode, surface_vikuiti_cryo );
     new G4LogicalBorderSurface("PEN1 --> Cathode Grid", physicalPEN1 , physicalCathode, surface_cryo_lar );
     new G4LogicalBorderSurface("PEN2 --> Cathode Grid", physicalPEN2 , physicalCathode, surface_cryo_lar );
     new G4LogicalBorderSurface("PEN3 --> Cathode Grid", physicalPEN3 , physicalCathode, surface_cryo_lar );
     new G4LogicalBorderSurface("PEN4 --> Cathode Grid", physicalPEN4 , physicalCathode, surface_cryo_lar );
-    new G4LogicalBorderSurface("PEN1 --> ReflectorT", physicalPEN1 , physicalReflectorTop, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PEN2 --> ReflectorT", physicalPEN2 , physicalReflectorTop, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PEN3 --> ReflectorT", physicalPEN3 , physicalReflectorTop, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PEN4 --> ReflectorT", physicalPEN4 , physicalReflectorTop, surface_vikuiti_lar );
+
+
+
     new G4LogicalBorderSurface("PEN1 --> ReflectorG", physicalPEN1 , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PEN2 --> ReflectorG", physicalPEN2 , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PEN3 --> ReflectorG", physicalPEN3 , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PEN4 --> ReflectorG", physicalPEN4 , physicalReflectorBottom, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PENTop --> ReflectorT", physicalPENTop , physicalReflectorTop, surface_vikuiti_lar );
-    new G4LogicalBorderSurface("PENTop --> LAr", physicalPENTop , physicalWorld, surface_PEN_lar );
-    new G4LogicalBorderSurface("LAr --> PENTop",  physicalWorld, physicalPENTop , surface_PEN_lar );
-    new G4LogicalBorderSurface("PENTop --> LArInside", physicalPENTop , physicalInsideArgon, surface_PEN_lar );
-    new G4LogicalBorderSurface("LArInside --> PENTop",  physicalInsideArgon, physicalPENTop , surface_PEN_lar );
+
     new G4LogicalBorderSurface("PENBottom --> ReflectorBottom", physicalPENBottom , physicalReflectorBottom, surface_vikuiti_lar );
     new G4LogicalBorderSurface("PENBottom --> LAr", physicalPENBottom , physicalWorld, surface_PEN_lar );
     new G4LogicalBorderSurface("LAr --> PENBottom",  physicalWorld, physicalPENBottom , surface_PEN_lar );
@@ -1015,8 +1148,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4double dh_SiPM = config_SiPM["distance_horizontal"].get<double>()*cm;
     G4double SiPM_reflective = config_SiPM["reflectance"].get<double>();
 
-    G4int only_half = config_SiPM["only_half"].get<int>();
-
     std::vector<std::vector<std::string>> matrix_pos = config_SiPM["map_ldu"].get<std::vector<std::vector<std::string>>>(); //[i][j] = [linha][coluna]
     G4cout << "SiPM Refraction Index: " << rindex_SiPM << std::endl;
     G4cout << "SiPM Absorption Length: " << abslength_SiPM/m << " m" << std::endl;
@@ -1029,6 +1160,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     int size=2;
     G4double* RIndex_array   = new G4double[size];
     G4double* abs_array   = new G4double[size];
+
     for (int i=0; i<size; i++) 
     {     
         RIndex_array[i]   = rindex_SiPM; 
@@ -1182,11 +1314,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4VisAttributes* visSiPMuv = new G4VisAttributes(G4Colour(0.6, 0, 0.6)); 
     visSiPMuv->SetForceSolid(true); 
     sipmuv_logical->SetVisAttributes(visSiPMuv);
-
-
-    //G4GDMLParser parser;
-    //parser.Write("geometria.gdml", physicalWorld);
-
 
     return physicalWorld;
   

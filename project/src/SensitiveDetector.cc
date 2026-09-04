@@ -127,7 +127,6 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
     }
     if(pDetected>=1)
     {
-
         G4Track* track = aStep->GetTrack();
         G4int ancestorID = track->GetTrackID();  
 
