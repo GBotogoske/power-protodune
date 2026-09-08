@@ -15,8 +15,8 @@ void analysis(std::string filename="../build/Data.root")
     TTree *tree = (TTree*)file->Get("Primary_Hit");
 
     // Create 2D histogram
-    TH2D *h2 = new TH2D("hvis","VIS(z,y)", 26, -6.5, 6.5, 26, -6.5, 6.5);
-    TH2D *h3 = new TH2D("huv","VUV(z,y)", 26, -6.5, 6.5, 26, -6.5, 6.5);
+    TH2D *h2 = new TH2D("hvis","VIS(z,y)", 18, -4.5, 4.5, 16, -4, 4);
+    TH2D *h3 = new TH2D("huv","VUV(z,y)", 18, -4.5, 4.5, 16, -4, 4);
 
     // Fill the histogram
     Double_t z, y, f, f2;
@@ -34,7 +34,7 @@ void analysis(std::string filename="../build/Data.root")
     {
         tree->GetEntry(i);
 
-        if(z<(-6) || z>6)
+        if((z<(-1.547) || z>1.547))// && (y<(-3.5) || y<3.5) )
         {
             ratio=gain/number_files;
         }
@@ -68,9 +68,9 @@ void analysis(std::string filename="../build/Data.root")
     int ny = h2->GetNbinsY();
 
         // Criar histograma para o buffer
-    TH2D *h4 = new TH2D("hall","VUV+VIS(z,y)", nx, -6.5, 6.5, ny, -6.5, 6.5);
-    TH2D *hbuffer = new TH2D("hbuffer","UV/(UV+VIS)", nx, -6.5, 6.5, ny, -6.5, 6.5);
-    TH2D *hratio = new TH2D("hratio","UV/VIS", nx, -6.5, 6.5, ny, -6.5, 6.5);
+    TH2D *h4 = new TH2D("hall","VUV+VIS(z,y)", nx, -4.5, 4.5, ny, -4, 4);
+    TH2D *hbuffer = new TH2D("hbuffer","UV/(UV+VIS)", nx, -4.5, 4.5, ny, -4, 4);
+    TH2D *hratio = new TH2D("hratio","UV/VIS", nx, -4.5, 4.5, ny, -4, 4);
 
 
     std::vector<std::vector<double>> mat_uv(nx, std::vector<double>(ny,0));
@@ -181,17 +181,18 @@ void analysis(std::string filename="../build/Data.root")
     {
         for(int j=0; j<ny; j++)
         {
-            if(i!=0 && i!=(nx-1))
+            if(j<ny/2){
+                if(i>6 && i<(nx-6))
                 h1dRin->Fill(buffer[i][j]);
-            else
-            {
-                h1dRout->Fill(buffer[i][j]);
-                if(buffer[i][j]>=out_cut)
-                {
-                    out_cont_cut=out_cont_cut+1;
-                }
-                out_cont=out_cont+1;
-            }       
+                else {
+                    h1dRout->Fill(buffer[i][j]);
+                    if(buffer[i][j]>=out_cut)
+                    {
+                        out_cont_cut=out_cont_cut+1;
+                    }
+                    out_cont=out_cont+1;
+                }   
+            }    
         }
     }
 
@@ -206,12 +207,12 @@ void analysis(std::string filename="../build/Data.root")
     h1dRout->SetLineColor(kRed+1);
     h1dRout->SetLineWidth(2);
 
-    h1dR->Draw("HIST");
+    //h1dR->Draw("HIST");
     h1dRin->Draw("HIST SAME");
     h1dRout->Draw("HIST SAME");
 
     TLegend *leg = new TLegend(0.65,0.7,0.88,0.88);
-    leg->AddEntry(h1dR,"All entries","l");
+    // leg->AddEntry(h1dR,"All entries","l");
     leg->AddEntry(h1dRin,"Inner region","l");
     leg->AddEntry(h1dRout,"Outer region","l");
     leg->SetBorderSize(0);

@@ -74,7 +74,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
     
     // This section is responsible for collecting PEN emission and absorbption data
 
-    G4bool get_pen_data = true; // set to false if you don't want to collect PEN data (this will result in much smaller .root files)
+    G4bool get_pen_data = false; // set to false if you don't want to collect PEN data (this will result in much smaller .root files)
     G4AnalysisManager *man = G4AnalysisManager::Instance(); // is a singleton btw
     if(get_pen_data){
         G4bool wls_absorbption = false;

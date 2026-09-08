@@ -1,2 +1,4 @@
 /project/build
 *.vscode*
+/project/analysis
+!/project/analysis/analysis.cpp
