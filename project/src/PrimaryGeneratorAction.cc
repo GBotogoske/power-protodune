@@ -97,6 +97,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         G4double y_pos = 0*m;// (-1+2*G4UniformRand())*cryostat_sizeY/2;
         G4double z_pos = 0*m;//(-1+2*G4UniformRand())*cryostat_sizeZ/2;
         G4String targetVolumeNameIn = "inside_argon";
+        G4String targetVolumeNameIn2 = "Cathode_Hole_argon";
         G4String targetVolumeNameOut = "World_argon";
         G4ThreeVector pos;
         pos = G4ThreeVector(x_pos, y_pos, z_pos);
@@ -125,7 +126,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
             std::string volumeName = volume->GetName();
 
-            if(volumeName.find(targetVolumeNameIn) != std::string::npos)
+            if(volumeName.find(targetVolumeNameIn) != std::string::npos || volumeName.find(targetVolumeNameIn2) != std::string::npos)
             {
                 if(this->Nin < NinTotal) 
                 {
