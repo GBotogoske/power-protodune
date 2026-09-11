@@ -14,15 +14,15 @@
 #include "G4TransportationManager.hh"
 #include "G4Navigator.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4AnalysisManager.hh"
 
-#include <fstream>
+#include <fstream>  
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
   fGPS(0),fParticleGun(0)
@@ -36,6 +36,9 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     this->cryostat_sizeX = config_cryostat["size"][0].get<double>()*cm;
     this->cryostat_sizeY = config_cryostat["size"][1].get<double>()*cm;
     this->cryostat_sizeZ = config_cryostat["size"][2].get<double>()*cm;
+
+    auto config_lar = config["liquid_argon"];
+    generation_mode = config_lar["constant_dN_dE"].get<int>();
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -58,28 +61,48 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4ParticleDefinition* photon = G4ParticleTable::GetParticleTable()->FindParticle("opticalphoton");
 
     float this_probability = 0.3; // quantity of argon light
+    fParticleGun->SetParticleDefinition(photon);
 
+    
     for (int i = 0; i < 1 ; i++) 
-    {
-
-        fParticleGun->SetParticleDefinition(photon);
-        if(G4UniformRand()<=this_probability)
-        {
-            fParticleGun->SetParticleEnergy(9.69*eV);  //127nm  
+{       
+    G4double selected_energy;
+        if(generation_mode == 0){
+            
+            if(G4UniformRand()<=this_probability)
+            {
+                selected_energy = 9.69*eV;
+                fParticleGun->SetParticleEnergy(selected_energy);  //127nm  
+            }
+            else
+            {
+                selected_energy = 7.08*eV;
+                fParticleGun->SetParticleEnergy(selected_energy);  //175nm
+            }
+            
         }
-        else
-        {
-            fParticleGun->SetParticleEnergy(7.08*eV);  //175nm
+
+        if(generation_mode ==1){
+            const G4double lambda_min = 100*nm;
+            const G4double lambda_max = 700*nm;
+
+            G4double selected_lambda = lambda_min + (lambda_max-lambda_min)*G4UniformRand();
+            selected_energy = (CLHEP::h_Planck*CLHEP::c_light)/selected_lambda;
+
+            fParticleGun->SetParticleEnergy(selected_energy);
         }
 
-        G4double x_pos = 0*m;//(-0.25 + 0.5*G4UniformRand())*m;
-        G4double y_pos = 0*m;// (-1+2*G4UniformRand())*cryostat_sizeY/2;
-        G4double z_pos = 0*m;//(-1+2*G4UniformRand())*cryostat_sizeZ/2;
+        auto man = G4AnalysisManager::Instance();
+        man->FillNtupleDColumn(2,0,((CLHEP::h_Planck * CLHEP::c_light)/selected_energy) / nm);
+        man->AddNtupleRow(2);
+
+        G4double x_pos = 0*m; //(-0.25 + 0.5*G4UniformRand())*m;
+        G4double y_pos = 0*m; // (-1+2*G4UniformRand())*cryostat_sizeY/2;
+        G4double z_pos = 0*m; //(-1+2*G4UniformRand())*cryostat_sizeZ/2;
         G4String targetVolumeName = "argon";
         G4ThreeVector pos;
         pos = G4ThreeVector(x_pos, y_pos, z_pos);
         G4VPhysicalVolume* volume = nullptr;
-    
         do 
         {
             // Sorteia posição dentro do criostato

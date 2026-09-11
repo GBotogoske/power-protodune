@@ -34,12 +34,19 @@ RunAction::RunAction(): G4UserRunAction(), fOutputFileName("./Data") //, fPenCou
 
     analysisManager->FinishNtuple(0);
 
-    analysisManager->CreateNtuple("Optical_Properties","Optical_Properties");
+    analysisManager->CreateNtuple("PEN_Optical_Properties","PEN_Optical_Properties");
     analysisManager->CreateNtupleDColumn(1,"emmited_wabelenght_PEN");
     analysisManager->CreateNtupleDColumn(1,"absorbed_wavelenght_PEN");
+    analysisManager->CreateNtupleDColumn(1,"absorbed_wavelenght_PEN_no_WLS");
     // ADD EVENT ID
 
     analysisManager->FinishNtuple(1);
+
+    analysisManager->CreateNtuple("photon_generation_info","photon_generation_info");
+    analysisManager->CreateNtupleDColumn(2,"primary_photon_wavelenght");
+
+    analysisManager->FinishNtuple(2);
+
 
 
 }

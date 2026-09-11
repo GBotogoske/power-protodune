@@ -27,6 +27,8 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4double cryostat_sizeY;
     G4double cryostat_sizeZ;
 
+    G4int generation_mode;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

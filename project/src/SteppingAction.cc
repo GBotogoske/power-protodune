@@ -73,55 +73,66 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
 
     
     // This section is responsible for collecting PEN emission and absorbption data
-
     G4bool get_pen_data = true; // set to false if you don't want to collect PEN data (this will result in much smaller .root files)
     G4AnalysisManager *man = G4AnalysisManager::Instance(); // is a singleton btw
+
     if(get_pen_data){
 
-        G4bool wls_absorbption = false;
-        G4bool wls_emission = false;
-
+        G4bool pen_absorbtion = false;
+        G4bool pen_wls_absorbption = false;
+        G4bool pen_wls_emission = false;
+        
         if (particle == "opticalphoton"){
             const G4VProcess* post_step_process = step->GetPostStepPoint()->GetProcessDefinedStep();
-            if(track->GetTrackStatus()==fStopAndKill && post_step_process){
-                if(post_step_process->GetProcessName() == "OpWLS" && G4StrUtil::contains(PreVolName,"PEN")){
+            if(track->GetTrackStatus() == fStopAndKill && post_step_process){
+                if(G4StrUtil::contains(PreVolName,"PEN")){
+                    // absorção com WLS
+                    if(post_step_process->GetProcessName() == "OpWLS"){
+                        G4double absorbed_pen_energy = track->GetKineticEnergy();
+                        G4double absorbed_pen_wavelenght = (CLHEP::h_Planck * CLHEP::c_light)/absorbed_pen_energy;
+                        G4double absorbed_pen_wavelenght_nm = absorbed_pen_wavelenght/nm;
 
-                    G4double absorbed_pen_energy = track->GetKineticEnergy();
-                    G4double absorbed_pen_wavelenght = (CLHEP::h_Planck * CLHEP::c_light)/absorbed_pen_energy;
-                    G4double absorbed_pen_wavelenght_nm = absorbed_pen_wavelenght/nm;
+                        man->FillNtupleDColumn(1,1,absorbed_pen_wavelenght_nm);
+                        pen_wls_absorbption = true;
+                    }
+                    // absorçao sem WLS
+                    if(post_step_process->GetProcessName() == "OpAbsorption"){
+                        G4double absorbed_pen_energy_no_wls = track->GetKineticEnergy();
+                        // Correção: Adicionado /nm no final
+                        G4double absorbed_pen_wavelenght_no_wls_nm = ((CLHEP::h_Planck * CLHEP::c_light)/absorbed_pen_energy_no_wls) / nm;
 
-                    man->FillNtupleDColumn(1,1,absorbed_pen_wavelenght_nm);
-                    //G4cout << "absorcao wls pen" << G4endl;
-                    wls_absorbption = true;
+                        man->FillNtupleDColumn(1,2,absorbed_pen_wavelenght_no_wls_nm);
+                        pen_absorbtion = true;
+                    }
                 }
             }
-        }
-        
+        } 
 
+        // Verificação de secundários (emissão WLS)
         const std::vector<const G4Track*> *secondaries = step->GetSecondaryInCurrentStep();
-        if (secondaries && secondaries->size()>0){
+        if (secondaries && secondaries->size() > 0){
             for(auto secondarie_track: *secondaries){
 
                 G4String secondarie_particle_name = secondarie_track->GetDefinition()->GetParticleName();
 
                 if(secondarie_particle_name == "opticalphoton"){
-
                     const G4VProcess* creator_process = secondarie_track->GetCreatorProcess();
 
                     if(creator_process && creator_process->GetProcessName() == "OpWLS" && G4StrUtil::contains(PreVolName,"PEN")){
-
                         G4double emmited_pen_energy = secondarie_track->GetKineticEnergy();
                         G4double emmited_pen_wavelenght = (CLHEP::h_Planck * CLHEP::c_light)/emmited_pen_energy;
                         G4double emmited_pen_wavelenght_nm = emmited_pen_wavelenght/nm;
 
                         man->FillNtupleDColumn(1,0,emmited_pen_wavelenght_nm);
-                        wls_emission = true;
+                        pen_wls_emission = true;
                     }
                 }
             }
         }
-        if(wls_emission && wls_absorbption){
+
+        if((pen_wls_emission && pen_wls_absorbption) || (pen_absorbtion)){
             man->AddNtupleRow(1);
         }
     }
+
 }

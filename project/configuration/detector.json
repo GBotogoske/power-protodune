@@ -30,7 +30,9 @@
             "Birks": 0.069
         },
         "rayleigh_scattering": "lar_rayleigh.json",
-        "reflectivity_anode": 0.3
+        "reflectivity_anode": 0.3,
+        "constant_dN_dE": 1
+        
     },
     "FC":
     {
@@ -91,7 +93,8 @@
         "time_constant": 25.0,
         "efficiency": 0.7,
         "hole_size_percentage": 1.0,
-        "rayleigh_scattering": 150
+        "rayleigh_scattering": 150,
+        "isWLS": 0
     },
     "Reflector":
     {

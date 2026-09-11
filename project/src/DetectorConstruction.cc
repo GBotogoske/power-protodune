@@ -778,13 +778,24 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4cout << "PEN Mean Excitation Energy: " << config_PEN["mean_excitation"].get<double>() << " eV" << std::endl;
     G4cout << "PEN Rayleigh: " << ray_pen/m << " m" << std::endl;
 
+    
+    // deactivates PEN as a WLS for when you want to test optical properties
+    auto PEN_isWLS = config_PEN["isWLS"].get<int>();
+
     mpt_PEN->AddProperty("RINDEX",{0.1*eV,15*eV},{refraction_index_pen,refraction_index_pen} , 2);
-    mpt_PEN->AddProperty("WLSABSLENGTH", energies_abs_pen, abs_pen,n_abs_pen);
-    mpt_PEN->AddProperty("WLSCOMPONENT", energies_em_pen, em_pen, n_em_pen);
     mpt_PEN->AddProperty("RAYLEIGH", {0.1*eV,15*eV} , {ray_pen, ray_pen}, 2);
-    mpt_PEN->AddConstProperty("WLSTIMECONSTANT",time_constant_pen);
-    mpt_PEN->AddConstProperty("WLSMEANNUMBERPHOTONS",eff_pen);
-    PEN_mat->SetMaterialPropertiesTable(mpt_PEN);
+
+    if(PEN_isWLS==0){
+        mpt_PEN->AddProperty("ABSLENGTH", energies_abs_pen, abs_pen,n_abs_pen);
+        PEN_mat->SetMaterialPropertiesTable(mpt_PEN);
+    }
+    else{
+        mpt_PEN->AddProperty("WLSABSLENGTH", energies_abs_pen, abs_pen,n_abs_pen);
+        mpt_PEN->AddProperty("WLSCOMPONENT", energies_em_pen, em_pen, n_em_pen);
+        mpt_PEN->AddConstProperty("WLSTIMECONSTANT",time_constant_pen);
+        mpt_PEN->AddConstProperty("WLSMEANNUMBERPHOTONS",eff_pen);
+        PEN_mat->SetMaterialPropertiesTable(mpt_PEN);
+    }
     PEN_mat->GetIonisation()->SetBirksConstant(config_PEN["birks"].get<double>()*cm/MeV);
     PEN_mat->GetIonisation()->SetMeanExcitationEnergy(config_PEN["mean_excitation"].get<double>()*eV);
     
