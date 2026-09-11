@@ -44,6 +44,9 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     this->Nin = 0;
     this->Nout = 0;
     this->Nout_edge = 0;
+
+    auto config_sim = config["sim"];
+    this->scale_factor =  config_sim["photons_scale_factor"].get<double>();
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -68,7 +71,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // Dentro: 14 x 6 voxels  --> 84 x 25000 = 2100000
     // Fora: 14 x 18 - 14 x 6.52 + 2x18 --> 196.72 x 40000 = 7869800
 
-    G4double scale_factor_N = 1.0;
+    G4double scale_factor_N = this->scale_factor;
 
     G4double NinTotal = 2100000*scale_factor_N;
     G4double NoutTotal = 7869800*scale_factor_N;
