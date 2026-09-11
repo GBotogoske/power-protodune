@@ -137,6 +137,7 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
         }
 
         G4ThreeVector motherPos = trackMap[ancestorID].vertex;
+        G4int origin = trackMap.at(ancestorID).volOrigin;
 
         double X = motherPos.getX()/m;
         double Y = motherPos.getY()/m;
@@ -156,6 +157,7 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
             aHit->SetX(X);
             aHit->SetY(Y);
             aHit->SetZ(Z);
+            aHit->SetOrigin(origin);
             aHit->SetDetectorID(idDetector);
             fHitCollection->insert(aHit);
             SensitiveDetector::PrintSDMemoryStatus();
@@ -172,6 +174,7 @@ G4bool SensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *)
             aHit->SetX(X);
             aHit->SetY(Y);
             aHit->SetZ(Z);
+            aHit->SetOrigin(origin);
             aHit->SetDetectorID(idDetector);
             fHitCollection->insert(aHit);
             SensitiveDetector::PrintSDMemoryStatus();

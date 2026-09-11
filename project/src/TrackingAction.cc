@@ -5,13 +5,27 @@ G4ThreadLocal std::map<G4int, TrackInfo> trackMap;
 
 void MyTrackingAction::PreUserTrackingAction(const G4Track* track) 
 {
-    /* auto vtx = track->GetVertexPosition();
-    G4cout << "[Tracking] Event=" 
-           << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()
-           << " TrackID=" << track->GetTrackID()
-           << " ParentID=" << track->GetParentID()
-           << " Vertex=" << vtx
-           << G4endl; */
+    G4int origin = -1;
 
-    trackMap[track->GetTrackID()] = { track->GetVertexPosition(), track->GetParentID() };
+    // Volume onde esse track nasceu
+    if(track->GetVolume())
+    {
+        G4String volumeName = track->GetVolume()->GetName();
+
+        if(volumeName.find("inside_argon") != std::string::npos ||
+        volumeName.find("Cathode_Hole_argon") != std::string::npos)
+        {
+            origin = 1;
+        }
+        else if(volumeName.find("World_argon") != std::string::npos)
+        {
+            origin = 0;
+        }
+    }
+
+    trackMap[track->GetTrackID()] = {
+        track->GetVertexPosition(),
+        track->GetParentID(),
+        origin
+    };
 }

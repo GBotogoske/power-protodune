@@ -8,6 +8,7 @@ struct TrackInfo
 {
     G4ThreeVector vertex;
     G4int parentID;
+    G4int volOrigin; //1 inside, 0 outside
 };
 
 G4ThreadLocal extern std::map<G4int, TrackInfo> trackMap;

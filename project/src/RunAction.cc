@@ -31,6 +31,7 @@ RunAction::RunAction(): G4UserRunAction(), fOutputFileName("./Data") //, fPenCou
     analysisManager->CreateNtupleDColumn(0,"Y");
     analysisManager->CreateNtupleDColumn(0,"Z");
     analysisManager->CreateNtupleDColumn(0,"detectorID");
+    analysisManager->CreateNtupleDColumn(0,"originVolume");
 
     analysisManager->FinishNtuple(0);
 
