@@ -67,6 +67,8 @@ void EventAction::EndOfEventAction(const G4Event* event)
             X = (*HC)[0]->GetX();
             Y = (*HC)[0]->GetY();
             Z = (*HC)[0]->GetZ();
+
+            int origin = (*HC)[0]->GetOrigin();
             
             analysisManager->FillNtupleIColumn(0,0,  nEvt);
             analysisManager->FillNtupleDColumn(0,1,  PhotonDetected_VIS);
@@ -75,6 +77,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
             analysisManager->FillNtupleDColumn(0,4,  Y);
             analysisManager->FillNtupleDColumn(0,5,  Z);
             analysisManager->FillNtupleDColumn(0,6,  iD);
+            analysisManager->FillNtupleDColumn(0,7,  origin);
             analysisManager->AddNtupleRow(0);
     }
 }

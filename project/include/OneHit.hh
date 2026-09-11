@@ -37,6 +37,9 @@ class OneHit : public G4VHit{
     void SetZ (G4double x)                       {fZ=x;};
     G4double GetZ()                   const { return fZ;};
 
+    void SetOrigin(G4int origin) {fOrigin = origin;};
+    G4int GetOrigin() const {return fOrigin;};
+
   private:
  
     G4int         fPhotonCounter_VIS;
@@ -45,6 +48,7 @@ class OneHit : public G4VHit{
     G4double fY;
     G4double fZ;
     G4int fDetectorID;
+    G4int fOrigin;
 
   };
 

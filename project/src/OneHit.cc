@@ -11,6 +11,6 @@
 
 #include <iomanip>
 
-OneHit::OneHit():fPhotonCounter_UV(0),fPhotonCounter_VIS(0),fX(0.0),fY(0.0),fZ(0.0),fDetectorID(0) {}
+OneHit::OneHit():fPhotonCounter_UV(0),fPhotonCounter_VIS(0),fX(0.0),fY(0.0),fZ(0.0),fDetectorID(0), fOrigin(-1) {}
 
 OneHit::~OneHit() {}
