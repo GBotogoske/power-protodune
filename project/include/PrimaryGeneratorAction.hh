@@ -33,6 +33,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4int Nout_edge;
     G4int Nin;
 
+    G4int scale_factor=1.0;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
