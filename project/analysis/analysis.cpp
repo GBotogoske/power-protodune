@@ -8,19 +8,23 @@
 #include <vector>
 #include <TLegend.h>
 
-void analysis(std::string filename="../build/Data_correct.root")
+void analysis(std::string filename="../build/Data.root")
 {
     // Open file and get tree
+
     TFile *file = TFile::Open(filename.c_str());
     TTree *tree = (TTree*)file->Get("Primary_Hit");
 
     // Create 2D histogram for internal region
-    TH2D *hVisInt = new TH2D("hvis","VIS(z,y) - Internal", 18, -4.64103, 4.64103, 16, -4, 4);
-    TH2D *hUvInt = new TH2D("huv","VUV(z,y) - Internal",  18, -4.64103, 4.64103, 16, -4, 4);
+    TH2D *hVisInt = new TH2D("hvis","VIS(z,y) - Internal", 36, -4.64103, 4.64103, 32, -4, 4);
+    TH2D *hUvInt = new TH2D("huv","VUV(z,y) - Internal",  36, -4.64103, 4.64103, 32, -4, 4);
 
      // Create 2D histogram for external region
-    TH2D *hVisExt = new TH2D("hvis","VIS(z,y)  - External", 18, -4.272, 4.272, 16, -4, 4);
-    TH2D *hUvExt = new TH2D("huv","VUV(z,y) - External", 18, -4.272, 4.272, 16, -4, 4);
+    TH2D *hVisExt = new TH2D("hvis","VIS(z,y)  - External", 36, -4.272, 4.272, 32, -4, 4);
+    TH2D *hUvExt = new TH2D("huv","VUV(z,y) - External", 36, -4.272, 4.272, 32, -4, 4);
+
+    int internal_bins_z=12;
+    int internal_bins_y=14;
 
     // Fill the histogram
     Double_t z, y, f, f2;
@@ -30,8 +34,9 @@ void analysis(std::string filename="../build/Data_correct.root")
     tree->SetBranchAddress("PhotonDetectedUV", &f2);
 
     int number_files=1;
-    float gain=40000.0/25000.0;
-    float ratio=1.0;
+    // float gain=40000.0/25000.0;
+    // float ratio=1.0;
+    float scale=0.1;
 
     Long64_t nentries = tree->GetEntries();
     for (Long64_t i=0; i<nentries; i++) 
@@ -42,25 +47,25 @@ void analysis(std::string filename="../build/Data_correct.root")
         {            
             if(f>=1)
             {
-                hVisInt->Fill(z, y,f*ratio);
+                hVisInt->Fill(z, y,f);
             }
                 
             if(f2>=1) 
             {
-                hUvInt->Fill(z,y,f2*ratio);
+                hUvInt->Fill(z,y,f2);
             }
         }
         else
         {
-            ratio = gain/number_files;
+            // ratio = gain/number_files;
             if(f>=1)
             {
-                hVisExt->Fill(z, y,f*ratio);
+                hVisExt->Fill(z, y,f);
             }
                 
             if(f2>=1) 
             {
-                hUvExt->Fill(z,y,f2*ratio);
+                hUvExt->Fill(z,y,f2);
             }
         }
     }
@@ -88,7 +93,7 @@ void analysis(std::string filename="../build/Data_correct.root")
 
         // Criar histograma para o buffer
     TH2D *h4 = new TH2D("hall","VUV+VIS(z,y)", nx, -4.64103, 4.64103, ny, -4, 4);
-    TH2D *hbuffer = new TH2D("hbuffer","UV/(UV+VIS)", nx, -4.64103, 4.64103, ny, -4, 4);
+    TH2D *hbuffer = new TH2D("hbuffer","UV_{frac}", nx, -4.64103, 4.64103, ny, -4, 4);
     TH2D *hratio = new TH2D("hratio","UV/VIS", nx, -4.64103, 4.64103, ny, -4, 4);
 
 
@@ -107,7 +112,7 @@ void analysis(std::string filename="../build/Data_correct.root")
     {
         for(int j=1; j<=ny; j++)
         {
-            if ((i > 6 && i < 13) && (j > 1 && j < ny)){
+            if ((i > internal_bins_z && i <= nx-internal_bins_z) && (j > 2 && j <= ny-2)){
                 mat_vis[i-1][j-1] = hVisInt->GetBinContent(i,j);
                 mat_uv[i-1][j-1] = hUvInt->GetBinContent(i,j);
             } else {
@@ -143,9 +148,9 @@ void analysis(std::string filename="../build/Data_correct.root")
     }
 
     int cont=0;
-    for(int i=1; i<nx-1; i++)        
+    for(int i=internal_bins_y-1; i<nx-internal_bins_y; i++)        
     {
-        for(int j=0; j<ny; j++)
+        for(int j=2; j<(ny/2-1); j++)
         {
             //std::cout << mat_all[i][j] << std::endl;
             lightyield_avg+=mat_all[i][j];
@@ -164,6 +169,7 @@ void analysis(std::string filename="../build/Data_correct.root")
     TCanvas *c5 = new TCanvas();
     hbuffer->GetZaxis()->SetRangeUser(0.0,1.0); // já que é uma fração
     hbuffer->Draw("COLZ");
+    hbuffer->SetStats(0);
     c5->SaveAs("heatmapBuffer.png");
 
     TCanvas *c6 = new TCanvas();
@@ -187,7 +193,7 @@ void analysis(std::string filename="../build/Data_correct.root")
     h1d->Draw();  // COLZ = color map
     c8->SaveAs("histFrancesco.png");
 
-   TH1D *h1dR = new TH1D("hist_R","R;R value;Entries", 200, -0.1 , 1.1 );
+   TH1D *h1dR = new TH1D("hist_R","UV_{frac} distribution (normalized);UV_{frac};Entries", 100, -0.1 , 1.1 );
     for(int i=0; i<nx; i++)        
     {
         for(int j=0; j<ny; j++)
@@ -196,8 +202,8 @@ void analysis(std::string filename="../build/Data_correct.root")
         }
     }
 
-    TH1D *h1dRin = new TH1D("hist_R_in","R (inner);R value;Entries", 200, -0.1 , 1.1 );
-    TH1D *h1dRout = new TH1D("hist_R_out","R (outer);R value;Entries", 200, -0.1 , 1.1 );
+    TH1D *h1dRin = new TH1D("hist_R_in","R (inner);R value;Entries", 100, -0.1 , 1.1 );
+    TH1D *h1dRout = new TH1D("hist_R_out","R (outer);R value;Entries", 100, -0.1 , 1.1 );
 
     double out_cont =0.0;
     double out_cont_cut=0.0;
@@ -205,9 +211,9 @@ void analysis(std::string filename="../build/Data_correct.root")
 
     for(int i=0; i<nx; i++)        
     {
-        for(int j=0; j<ny/2; j++)
+        for(int j=0; j<(ny-1); j++)
         {
-            if(i>6 && i<(nx-6) && (j > 0) && (j < (ny-1))){
+            if(i>(internal_bins_y-1) && i<=(nx-internal_bins_y) && (j > 1) && (j < (ny/2-1))){
                 h1dRin->Fill(buffer[i][j]);
             } else {
                 h1dRout->Fill(buffer[i][j]);
@@ -221,22 +227,27 @@ void analysis(std::string filename="../build/Data_correct.root")
     }
 
 
-    TCanvas *c9 = new TCanvas("c7","R distributions",800,600);
+    TCanvas *c9 = new TCanvas("c7","UV_{frac} distributions",800,600);
     c9->SetGrid();
 
     h1dR->SetLineColor(kBlack);
     h1dR->SetLineWidth(2);
+    h1dR->SetStats(0);
     h1dRin->SetLineColor(kBlue+1);
     h1dRin->SetLineWidth(2);
+    h1dRin->SetStats(0);
     h1dRout->SetLineColor(kRed+1);
     h1dRout->SetLineWidth(2);
 
-    //h1dR->Draw("HIST");
+    h1dR->Draw("HIST");
+    h1dR->Scale(1/h1dR->GetMaximum());
+    h1dRin->Scale(1/h1dRin->GetMaximum());
     h1dRin->Draw("HIST SAME");
+    h1dRout->Scale(1/h1dRout->GetMaximum());
     h1dRout->Draw("HIST SAME");
 
-    TLegend *leg = new TLegend(0.65,0.7,0.88,0.88);
-    // leg->AddEntry(h1dR,"All entries","l");
+    TLegend *leg = new TLegend(0.55,0.7,0.88,0.88);
+    leg->AddEntry(h1dR,"All entries","l");
     leg->AddEntry(h1dRin,"Inner region","l");
     leg->AddEntry(h1dRout,"Outer region","l");
     leg->SetBorderSize(0);

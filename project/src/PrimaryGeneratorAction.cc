@@ -73,7 +73,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
     G4double scale_factor_N = this->scale_factor;
 
-    G4double NinTotal = 2100000*scale_factor_N;
+    G4double NinTotal = 4200000*scale_factor_N;
     G4double NoutTotal = 7869800*scale_factor_N;
     G4double NoutTotalEdges = 2*18*40000*scale_factor_N;
     G4double NoutTotalNonEdges =  NoutTotal - NoutTotalEdges;
