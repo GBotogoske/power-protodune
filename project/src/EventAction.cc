@@ -39,6 +39,10 @@ EventAction::GetHitsCollection(G4int HCID, const G4Event* event) const
 void EventAction::BeginOfEventAction(const G4Event* event)
 {
     trackMap.clear();
+    G4int eventId = event->GetEventID();
+    if(eventId % 100000 == 0){
+      G4cout << "Event with ID " << eventId << " started." << G4endl; 
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
